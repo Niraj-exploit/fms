@@ -1,0 +1,41 @@
+{% extends 'userHome/main.html' %}
+{% load static %}
+{% block content %}
+
+<section id="checkout" class="checkout">
+    <div class="container mt-5">
+        <form action="" method="post" id="bookingForm">
+            <div class="row">
+                <!-- Left Side: Form -->
+                <div class="col-md-6" id='datetimepicker1'>
+                    {% csrf_token %}
+                    <h2>Booking Details</h2>
+                    <div class="mb-3">
+                        <input type="date" class="form-control" name="booking_date" placeholder="Booking Date">
+                    </div>
+                    <label for="available-time">Available times</label>
+                    <div class="mb-3">
+                        {% for time in time_slots %}
+                        <button class="btn mb-2" disabled>{{time}}</button>
+                        {% endfor %}
+                        <input type="time" class="form-control" name="booking_time" placeholder="Booking Time">
+                    </div>
+                    <div class="mb-3">
+                        <input type="number" class="form-control" name="book_time" placeholder="Hours booked">
+                    </div>
+                </div>
+
+                <!-- Right Side: Confirmation -->
+                <div class="col-md-6 d-flex flex-column justify-content-center align-items-center">
+                    <h2>Confirm Booking</h2>
+                    <img src="{{futsal.images.url}}" class="img-fluid mt-3" alt="{{futsal.name}}">
+                    <!-- Button to trigger the modal -->
+                    <button type="submit" class="btn">Book Now</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+
+{% endblock content %}

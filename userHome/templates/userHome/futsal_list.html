@@ -1,0 +1,54 @@
+{% extends 'userHome/main.html' %}
+{% load static %}
+{% block content %}
+<section id="values" class="values ">
+  <div class="col-12">
+    <div class="">
+        <div class="container p-3 mt-5" data-aos="fade-up">
+          <style>
+            .fixed-height-image {
+              height: 200px;
+              /* Set the desired height */
+              object-fit: cover;
+              /* Maintain aspect ratio and cover the container */
+              width: 100%;
+              /* Ensure the image takes up the full width of its container */
+            }
+    
+            .fixed-height-image-container {
+              height: 250px;
+              /* Adjust the height as needed */
+              overflow: hidden;
+              /* Hide any overflow beyond the specified height */
+            }
+          </style>
+    
+          <div class=" ">
+            {% for futsal in futsals %}
+              <div class="card mb-2 p-2">
+                <div class="row d-flex align-items-center">
+                  <div class="col-6 d-flex justify-content-center">
+                    <img src="{{ futsal.images.url }}" class="img-fluid fixed-height-image-container" alt="">
+                  </div>
+                  <div class="col-6 p-2">
+                    <h3>{{futsal.name}}</h3>
+                    <p>Location: {{futsal.location}}</p>
+                    <p>Price: {{futsal.price}} per hour</p>
+                    <p>Time: {{futsal.open_time}} - {{futsal.close_time}}</p>
+                    <p>Contact: {{futsal.email}}, {{futsal.contact_number}}</p>
+                    <a class="btn btn-outline-primary" href="{% url 'book_futsal' futsal.id %}">Book Now</a>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+    
+    
+    
+        </div>
+    </div>
+  </div>
+</section><!-- End Values Section -->
+
+
+{% endblock content %}

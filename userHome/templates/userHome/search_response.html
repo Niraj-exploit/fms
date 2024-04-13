@@ -1,0 +1,44 @@
+{% extends 'userHome/main.html' %}
+{% load static %}
+{% block content %}
+<section id="values" class="values">
+
+    <div class="container  mt-5" data-aos="fade-up">
+
+      <header class="section-header">
+        <h2>Our Values</h2>
+        <p>Best Futsal Near Kathmandu</p>
+      </header>
+
+      <style>
+        .fixed-height-image {
+    height: 200px; /* Set the desired height */
+    object-fit: cover; /* Maintain aspect ratio and cover the container */
+    width: 100%; /* Ensure the image takes up the full width of its container */
+}
+
+      </style>
+
+      <div class="row">
+        {% for futsal in futsals %}
+        <div class="col-lg-4 mt-4 mt-lg-0" data-aos="fade-up" data-aos-delay="200">
+            <div class="box">
+                <img src="{{futsal.images.url}}" class="img-fluid fixed-height-image" alt="">
+                <h3>{{futsal.name}}</h3>
+                <p>Location: {{futsal.location}}</p>
+                <p>Price: {{futsal.price}} per hour</p>
+                <p>Time: {{futsal.open_time}} - {{futsal.close_time}}</p>
+                <p>Contact: {{futsal.email}}, {{futsal.contact_number}}</p>
+                <a class="btn btn-outline-primary" href="{% url 'book_futsal' futsal.id %}">Book Now</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+
+    </div>
+
+  </section><!-- End Values Section -->
+
+ 
+{% endblock content %}

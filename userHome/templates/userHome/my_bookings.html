@@ -1,0 +1,77 @@
+{% extends 'userHome/main.html' %}
+{% load static %}
+{% block content %}
+<section id="values" class="values">
+  <div class="col-12">
+    <div class="p-3">
+      <div class="">
+        <div class="container mt-5" data-aos="fade-up">
+          <style>
+            .fixed-height-image {
+              height: 200px;
+              /* Set the desired height */
+              object-fit: cover;
+              /* Maintain aspect ratio and cover the container */
+              width: 100%;
+              /* Ensure the image takes up the full width of its container */
+            }
+
+            .fixed-height-image-container {
+              height: 250px;
+              margin: 10px;
+              border-radius: 10px;
+              overflow: hidden;
+              /* Hide any overflow beyond the specified height */
+            }
+
+
+          </style>
+
+          <div class="row ">
+            {% for booking in bookings %}
+            <div class="card mb-3">
+                <div class="row d-flex align-items-center">
+                    <div class="col-6">
+                      <img src="{{ booking.futsal.images.url }}" class="img-fluid fixed-height-image-container" alt="">
+                    </div>
+                    <div class="col-6">
+                      <h3>{{ booking.futsal.name }}</h3>
+
+
+                      <p>Booking Time: {{ booking.booking_date }} - {{ booking.booking_time }} </p>
+                      <p>For: {{ booking.book_time }} hour</p>
+                      <p>Total Price: Rs {{booking.total_price}}</p>
+                      <!-- <p>Status: {{ booking.status }} </p> -->
+                      <div class="col-3 d-flex align-items-center "> 
+                        <!-- <p>{{booking.status}}</p> -->
+                        {% if booking.status == 'PENDING' %}
+                            <span class="status-pending">{{ booking.status }}</span>
+                            <a class="btn btn-outline-primary" href="{% url 'cancel_booking' booking.id %}">Cancel Booking</a>
+                        {% elif booking.status == 'Approved' %}
+                            <span class="status-confirmed">{{ booking.status }}</span>
+                            {% if booking.payment_status == 'Pending' %}
+                            <a class="btn btn-outline-primary" href="{% url 'initiate_payment' booking.id %}">Pay Now</a>
+                            {% elif booking.payment_status == 'Completed' %}
+                            <div class="d-flex flex-row">
+                            <a class="btn btn-outline-primary " href="{% url 'view_bill' booking.id %}">View Bill</a>
+                            </div>
+                            {% endif %}
+                        {% elif booking.status == 'Rejected' %}
+                            <span class="status-rejected">{{ booking.status }}</span>
+                        {% elif booking.status == 'CANCELLED' %}
+                            <span class="status-cancelled" >{{ booking.status }}</span>
+                        {% endif %}
+                    </div>
+                      <!-- <a class="btn btn-outline-primary" href="{% url 'cancel_booking' booking.id %}">Cancel Booking</a> -->
+
+                    </div>
+                  </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section><!-- End Values Section -->
+{% endblock content %}

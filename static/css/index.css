@@ -1,0 +1,22 @@
+.navbar ul {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar li {
+    margin-right: 10px; /* Adjust as needed for spacing */
+}
+
+.navbar li:last-child {
+    margin-right: 0;
+}
+
+.navbar a:after {
+    content: " |";
+}
+
+.navbar a:last-child:after {
+    content: ""; /* Remove the pipe after the last link */
+}

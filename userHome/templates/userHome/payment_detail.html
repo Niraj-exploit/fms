@@ -1,0 +1,87 @@
+{% extends 'userHome/main.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .custom-img {
+        max-width: 100%;
+        max-height: 270px; 
+        object-fit: cover; 
+    }
+
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        #print-section, #print-section * {
+            visibility: visible;
+        }
+
+    }
+</style>
+<div class="container mt-4" id="print-section">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <img src="{{ futsal_img }}" class="card-img-top custom-img" alt="">
+                <div class="card-body">
+                    <h5 class="card-title">{{ booking.futsal.name }}</h5>
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <th>Booking Date</th>
+                                <th>Booking Time</th>
+                                <th>Booking Duration</th>
+                            </tr>
+                            <tr>
+                                <td>{{ booking.booking_date|date:"F d, Y" }}</td>
+                                <td>{{ booking.booking_time|time:"g:i A" }}</td>
+                                <td>{{ booking.book_time }} hours</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <th>PIDX</th>
+                                <td>{{ pidx }}</td>
+                            </tr>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <td>{{ transaction_id }}</td>
+                            </tr>
+                            <tr>
+                                <th>TIDX</th>
+                                <td>{{ tidx }}</td>
+                            </tr>
+                            <tr>
+                                <th>Mobile</th>
+                                <td>{{ mobile }}</td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td>{{ status }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Total Price Section -->
+            <div class="text-right mt-4" style="text-align: end;">
+                <h2 class="display-4 text-primary">Total Price</h2>
+                <h3 class="text-success">NPR {{ total_amount }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<button class="btn btn-primary" onclick="window.print()">Print</button>
+
+{% endblock content %}
+
+

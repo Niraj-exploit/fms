@@ -1,0 +1,97 @@
+{% extends 'userHome/main.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/form__group.css' %}">
+<div class="container-fluid py-4">
+    <div class="row">
+      <div class="col-12">
+        <div class="card mb-4">
+          <div class="card-header pb-0 d-flex align-items-center justify-content-between">
+            <h6>Futsal Table</h6>
+            <button type="button" class="btn btn-success float-end" data-bs-toggle="modal" data-bs-target="#addFutsalModal">Add</button>
+          </div>
+          <div class="card-body px-0 pt-0 pb-2">
+            <div class="table-responsive p-0">
+              <table class="table align-items-center mb-0">
+                <thead>
+                  <tr>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Name</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Type</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Location</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Price</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Time</th>
+                    <th class="text-secondary opacity-7"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for futsal in futsals %}
+                  <tr>
+                    <td>
+                      <div class="d-flex px-2 py-1">
+                        <!-- <div>
+                          <img src="{{futsal.images.url}}" class="avatar avatar-sm me-3" alt="user6">
+                        </div> -->
+                        <div class="d-flex flex-column justify-content-center">
+                          <h6 class="mb-0 text-sm">{{futsal.name}}</h6>
+                          <p class="text-xs text-secondary mb-0">{{futsal.email}}, {{futsal.contact_number}}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <p class="text-xs font-weight-bold mb-0">{{futsal.futsal_type}}</p>
+                    </td>
+                    <td class="align-middle text-center text-sm">
+                      <!-- <span class="badge badge-sm bg-gradient-secondary">Offline</span> -->
+                      <p class="text-xs text-secondary mb-0">{{futsal.location}}</p>
+                    </td>
+                    <td class="align-middle text-center">
+                      <span class="text-secondary text-xs font-weight-bold">{{futsal.price}}</span>
+                    </td>
+                    <td class="align-middle text-center">
+                      <span class="text-secondary text-xs font-weight-bold">{{futsal.open_time}}-{{futsal.close_time}}</span>
+                    </td>
+                    <td class="align-middle">
+                      <a href="javascript:;" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit user">
+                        Edit
+                      </a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+
+
+  <!-- Add Futsal Modal -->
+<div class="modal fade" id="addFutsalModal" tabindex="-1" aria-labelledby="addFutsalModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addFutsalModalLabel">Add Futsal</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Add your form here, you can render it using Django form rendering -->
+        <form method="post" action="{% url 'manage_futsal'%}" enctype="multipart/form-data">
+          {% csrf_token %}
+          <!-- Your form fields go here -->
+          <div class="mb-3 form__group">
+            {{futsal_form.as_p}}
+          </div>
+          <!-- Add other form fields as needed -->
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock content %}

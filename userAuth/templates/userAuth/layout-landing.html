@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  {% if request.user.is_authenticated %}
+  <title>welcome {{request.user.username}}</title>
+  {% else %}
+  <title>Futsal Pro</title>
+  {% endif %}
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="{% static 'img/logo/Futsal-pro.png' %}" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+    rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'vendor/aos/aos.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/remixicon/remixicon.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+  <link href="{% static 'css/search.css' %}" rel="stylesheet" />
+  <link href="{% static 'css/fixed-plugin.css' %}" rel="stylesheet" />
+  <link href="{% static 'css/cart.css' %}" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css">  <!-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"> -->
+  <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"> -->
+
+
+  <!-- Template Main CSS File -->
+  <link href="{% static 'css/style.css' %}" rel="stylesheet">
+
+
+</head>
+
+<body >
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="header fixed-top">
+    <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
+
+      <div class="d-flex align-items-center">
+        <a href="index.html" class="logo d-flex align-items-center">
+          <img src="{% static 'img/logo.png' %}" alt="">
+          <span>Futsal Pro</span>
+        </a>
+      </div>
+
+      <div class="navbar" id="navbar">
+        <ul class="nav">
+          {% if request.user.is_authenticated %}
+          <li class="nav-item"><a class="nav-link scrollto active" href="#hero">Find Near Me</a></li>
+          <li class="nav-item"><a class="nav-link scrollto">|</a></li>
+          <li class="nav-item"><a class="nav-link scrollto" href="#search" data-toggle="modal"
+              data-target="#searchModal">Search</a></li>
+          <li class="nav-item"><a class="nav-link scrollto">|</a></li>
+          <li class="nav-item"><a class="nav-link scrollto" href="{% url 'futsal_list' %}">My bookings</a></li>
+          {% else %}
+          <li class="nav-item"><a class="nav-link scrollto active" href="#hero">Home</a></li>
+          <li class="nav-item"><a class="nav-link scrollto">|</a></li>
+          <li class="nav-item"><a class="nav-link scrollto" href="#about">About</a></li>
+          <li class="nav-item"><a class="nav-link scrollto">|</a></li>
+          <li class="nav-item"><a class="nav-link scrollto" href="#contact">Contact</a></li>
+          {% endif %}
+
+            
+
+        </ul>
+      </div>
+
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          // Get the dropdown element
+          var dropdown = document.querySelector(".dropdown");
+
+          // Add event listeners for mouseenter and mouseleave
+          dropdown.addEventListener("mouseenter", function () {
+            this.classList.add("show");
+          });
+
+          dropdown.addEventListener("mouseleave", function () {
+            this.classList.remove("show");
+          });
+        });
+      </script>
+      <style>
+        .dropdown-menu {
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          display: none;
+          box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+          z-index: 1;
+        }
+
+        .dropdown:hover .dropdown-menu {
+          display: block;
+        }
+      </style>
+      <div class="ml-auto d-flex gap-2">
+        {% if request.user.is_authenticated %}
+
+        <div class="icon-cart">
+          <!-- Cart Icon with Popover -->
+          <button type="button" class="btn btn-link" id="cartPopover" data-toggle="popover" data-placement="bottom"
+                  title="Booking List" data-html="true" data-content="Your cart items go here">
+                  <i class="fa-solid fa-cart-shopping"></i>
+          </button>
+        </div>
+
+
+        <!-- Cart modal -->
+        {% include 'userHome/cart.html' %}
+        <!-- Cart modal -->
+
+
+        <div class="dropdown ml-auto  d-flex gap-2">
+          <a class="nav-link dropdown-toggle" href="#" role="button" id="profileDropdown" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            <img src="{{ request.user.avatar.url }}" alt="Profile" class="rounded-circle" width="30" height="30">
+          </a>
+          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="profileDropdown">
+            {% if request.user.is_staff %}
+            <a class="dropdown-item" href="{% url 'admin' %}">Admin Pannel</a>
+            <div class="dropdown-divider"></div>
+            {% endif %}
+            <a class="dropdown-item" href="#">Profile</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+          </div>
+        </div>
+      </div>
+
+      {% else %}
+      <a class="btn btn-outline-primary" href="{% url 'login' %}">Login</a>
+      {% endif %}
+    </div>
+    <i class="bi bi-list mobile-nav-toggle"></i>
+
+    </div>
+  </header>
+  <!-- End Header -->
+
+  {% block content %}
+
+  {% endblock %}
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer" class="footer">
+
+    <div class="footer-newsletter">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-12 text-center">
+            <h4>Our Newsletter</h4>
+            <p>Stay in the loop with Futsal Pro! Subscribe to our newsletter for exclusive updates, events, and exciting
+              futsal insights. Join now!</p>
+          </div>
+          <div class="col-lg-6">
+            <form action="" method="post">
+              <input type="email" name="email"><input type="submit" value="Subscribe">
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-top">
+      <div class="container">
+        <div class="row gy-4">
+          <div class="col-lg-5 col-md-12 footer-info">
+            <a href="index.html" class="logo d-flex align-items-center">
+              <img src="{% static 'img/logo.png' %}" alt="">
+              <span>Futsal Pro</span>
+            </a>
+            <p>Unleash your full potential with our state-of-the-art facilities and expert coaching. At Futsal Pro, we
+              believe in your ability to achieve greatness on and off the court.</p>
+            <div class="social-links mt-3">
+              <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
+              <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
+              <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
+              <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>
+            </div>
+          </div>
+
+          <div class="col-lg-2 col-6 footer-links">
+            <h4>Useful Links</h4>
+            <ul>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Home</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">About us</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Contact</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Terms of service</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Privacy policy</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-2 col-6 footer-links">
+            <h4>Our Services</h4>
+            <ul>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Web Design</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Web Development</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Product Management</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Marketing</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="#">Graphic Design</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-3 col-md-12 footer-contact text-center text-md-start">
+            <h4>Contact Us</h4>
+            <p>
+              A108 Adam Street <br>
+              New York, NY 535022<br>
+              United States <br><br>
+              <strong>Phone:</strong> +1 5589 55488 55<br>
+              <strong>Email:</strong> info@example.com<br>
+            </p>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="copyright">
+        &copy; Copyright <strong><span>Futsal Pro</span></strong>. All Rights Reserved
+      </div>
+    </div>
+  </footer><!-- End Footer -->
+
+
+  <!-- Search Modal -->
+
+<div class="modal fade" id="searchModal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel"  aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="searchModalLabel">Search</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="outline: none; color: white; background-color: rgba(255, 0, 0, 0.871); opacity: 1; border: none; border-radius: 50%;">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="s007">
+            <form>
+              <div class="inner-form">
+                <form method="POST" action="{% url 'search_futsal' %}" id="searchForm">
+                {% csrf_token %}
+                <div class="basic-search">
+                  <div class="input-field">
+                    <div class="icon-wrap">
+                      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" viewBox="0 0 20 20">
+                        <path d="M18.869 19.162l-5.943-6.484c1.339-1.401 2.075-3.233 2.075-5.178 0-2.003-0.78-3.887-2.197-5.303s-3.3-2.197-5.303-2.197-3.887 0.78-5.303 2.197-2.197 3.3-2.197 5.303 0.78 3.887 2.197 5.303 3.3 2.197 5.303 2.197c1.726 0 3.362-0.579 4.688-1.645l5.943 6.483c0.099 0.108 0.233 0.162 0.369 0.162 0.121 0 0.242-0.043 0.338-0.131 0.204-0.187 0.217-0.503 0.031-0.706zM1 7.5c0-3.584 2.916-6.5 6.5-6.5s6.5 2.916 6.5 6.5-2.916 6.5-6.5 6.5-6.5-2.916-6.5-6.5z"></path>
+                      </svg>
+                    </div>
+                    <input id="search" type="text" name="search" placeholder="Search..." />
+
+                </div>
+                <div class="advance-search">
+                  <span class="desc">Advanced Search</span>
+                  <div class="row">
+                    <div class="input-field">
+                      <div class="input-select">
+                        {{ form.name }}
+                      </div>
+                    </div>
+                    <div class="input-field">
+                      <div class="input-select">
+                        {{ form.location }}
+                      </div>
+                    </div>
+                    <div class="input-field">
+                      <div class="input-select">
+                        {{ form.futsal_type }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row third">
+                    <div class="input-field d-flex mt-3">
+                      <button class="btn-search">Search</button>
+                      <button class="btn-delete" id="delete">Delete</button>
+                    </div>
+                  </div>
+                </div>
+                
+                </form>
+              </div>
+            </form>
+          </div>
+      <script src="{% static 'js/extention/choices.js' %}"></script>
+      <script>
+        const customSelects = document.querySelectorAll("select");
+        const deleteBtn = document.getElementById('delete')
+        const choices = new Choices('select',
+        {
+          searchEnabled: false,
+          removeItemButton: true,
+          itemSelectText: '',
+        });
+        for (let i = 0; i < customSelects.length; i++)
+        {
+          customSelects[i].addEventListener('addItem', function(event)
+          {
+            if (event.detail.value)
+            {
+              let parent = this.parentNode.parentNode
+              parent.classList.add('valid')
+              parent.classList.remove('invalid')
+            }
+            else
+            {
+              let parent = this.parentNode.parentNode
+              parent.classList.add('invalid')
+              parent.classList.remove('valid')
+            }
+          }, false);
+        }
+        deleteBtn.addEventListener("click", function(e)
+        {
+          e.preventDefault()
+          const deleteAll = document.querySelectorAll('.choices__button')
+          for (let i = 0; i < deleteAll.length; i++)
+          {
+            deleteAll[i].click();
+          }
+        });
+  
+      </script>
+      <script>
+        $(document).ready(function () {
+            var bookingDetails = $('#confirmBookingBtn').data('booking-details');
+            $('#bookingDetails').text(bookingDetails);
+            $('#confirmBookingModal').modal('show');
+        });
+    </script>
+        </div> 
+      </div>
+    </div>
+  </div>
+  <!--End of search Modal -->
+
+
+  <!-- Inside your body tag, after the existing content -->
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+
+<script type="text/javascript">
+  // Add a listener for the modal show event
+  $('#confirmBookingModal').on('show.bs.modal', function (event) {
+      // Extract the booking details from the data attribute
+      var bookingDetails = $(event.relatedTarget).data('booking-details');
+      
+      // Display the booking details in the modal body
+      $('#bookingDetails').text(bookingDetails);
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+  <!-- Vendor JS Files -->
+  <script src="{% static 'vendor/purecounter/purecounter_vanilla.js' %}"></script>
+  <script src="{% static 'vendor/aos/aos.js' %}"></script>
+  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'vendor/glightbox/js/glightbox.min.js' %}"></script>
+  <script src="{% static 'vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
+  <script src="{% static 'vendor/swiper/swiper-bundle.min.js' %}"></script>
+  <script src="{% static 'vendor/php-email-form/validate.js' %}"></script>
+\  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/momentjs/2.14.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>  
+  <!-- Template Main JS File -->
+  <script src="{% static 'js/main.js' %}"></script>
+  <script src="{% static 'js/icon-cart.js' %}"></script>
+
+</body>
+
+</html>

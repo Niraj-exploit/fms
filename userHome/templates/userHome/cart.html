@@ -1,0 +1,50 @@
+<div class="cartTab showCart">
+  <h1 class="title">Your Bookings</h1>
+  <div class="listCart">
+      {% if user_booked_futsals %}
+          <ul>
+              {% for booking in user_booked_futsals %}
+              <div class="card m-2 position-absolute" style="left: 0;">
+                <li style="list-style: none;">
+                    <div class="booking-details">
+                      <div class="row">
+                        <div class="col-3 d-flex align-items-center">
+                          <!-- Fixed-size image of futsal -->
+                          <img src="{{ booking.futsal.images.url }}" alt="{{ booking.futsal.name }}" class="futsal-image rounded" style="width: 100%; margin-left: 10px;">
+                          <!-- Futsal name -->
+                        </div>
+                        <div class="col-6 d-flex align-items-center flex-column">
+                        <h4 style="font-size: 15px; font-weight: 600; margin-top: 5px;">{{ booking.futsal.name }}</h4>
+                          <!-- Booking time -->
+                          <p style="font-size: 12px; font-weight: 400;">{{ booking.booking_date|date:"F d, Y" }} {{ booking.booking_time|time:"g:i A" }}</p>
+                          <!-- Booking duration -->
+                          <p style="font-size: 12px; font-weight: 400;"> For {{ booking.book_time }} hours</p>
+                          <!-- Booking status -->
+                        </div>
+                        <div class="col-3 d-flex align-items-center "> 
+                          {% if booking.status == 'PENDING' %}
+                              <span class="status-pending">{{ booking.status }}</span>
+                          {% elif booking.status == 'CONFIRMED' %}
+                              <span class="status-confirmed">{{ booking.status }}</span>
+                          {% elif booking.status == 'REJECTED' %}
+                              <span class="status-rejected">{{ booking.status }}</span>
+                          {% elif booking.status == 'CANCELLED' %}
+                              <span class="status-cancelled" >{{ booking.status }}</span>
+                          {% endif %}
+                      </div>
+                      </div>
+                    </div>
+                </li>
+            </div>
+                  
+              {% endfor %}
+          </ul>
+      {% else %}
+          <p class="cart-content">No bookings yet.</p>
+      {% endif %}
+  </div>
+  <div class="btn">
+      <button class="close">CLOSE</button>
+      <button class="checkOut">Check Out</button>
+  </div>
+</div>
