@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from userAuth.models import User
 from datetime import timedelta, datetime
 from enum import Enum
+from decimal import Decimal
 
 class BookingStatus(Enum):
     PENDING = 'PENDING'
@@ -15,7 +16,7 @@ class Futsal(models.Model):
         ('5A', '5-A-Side'),
         ('7A', '7-A-Side'),
         ('6A', '6-A-Side'),
-        # Add more futsal types as needed
+
     ]
     
     name = models.CharField(max_length=100)
@@ -42,7 +43,7 @@ class Booking(models.Model):
     booking_date = models.DateField(default=datetime.today)
     booking_time = models.TimeField(null=True)
     book_time = models.PositiveIntegerField(default=1)
-    total_price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    total_price = models.DecimalField(max_digits=8, decimal_places=2, default=Decimal('0.00'))
     status = models.CharField(max_length=10, choices=[(tag.value, tag.value) for tag in BookingStatus], default=BookingStatus.PENDING.value) 
     payment_status = models.CharField(max_length=10, default="Pending", null=False)
     pidx = models.CharField(max_length=20, null=True)

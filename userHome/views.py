@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from adminHome.models import Futsal
 from django.contrib.auth import logout
@@ -13,7 +14,8 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 import requests
 import json
-
+from django.db.models import Count
+from adminHome.utils import find_most_booked_futsal_for_week
 
 
 
@@ -22,6 +24,11 @@ def homePage(request):
     total_futsals = Futsal.objects.count()
     form = FutsalSearchForm()
     futsal_types = Futsal.objects.values_list('futsal_type', flat=True).distinct()
+    
+    most_booked_futsal, num_bookings = find_most_booked_futsal_for_week()
+    print(most_booked_futsal, num_bookings)
+
+
     if request.user.is_authenticated:
         user_booked_futsals = Booking.objects.filter(user=request.user)
         user_booked_count = Booking.objects.filter(user=request.user).count()
@@ -33,6 +40,7 @@ def homePage(request):
         'futsal_types': futsal_types,
         'user_booked_futsals': user_booked_futsals,
         'user_booked_count': user_booked_count,
+        'most_booked_futsal': most_booked_futsal,
         'form': form,
     }
 
@@ -124,6 +132,9 @@ def myBookings(request):
     }
     return render(request, 'userHome/my_bookings.html', context)
 
+
+def topBooked(request):
+    topBooked = Booking.object.filter()
 
 def searchFutsal(request):
     print("hello")

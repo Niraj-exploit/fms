@@ -1,0 +1,103 @@
+{% extends 'adminHome/main.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/form__group.css' %}">
+<div class="container-fluid py-4">
+
+    <div class="row">
+      <div class="col-12">
+        <div class="card mb-4">
+          <div class="card-header pb-0 d-flex align-items-center justify-content-between">
+            <h6>Booking table</h6>
+            <button type="button" class="btn btn-success float-end">Add</button>
+          </div>
+          <div class="card-body px-0 pt-0 pb-2">
+            <div class="table-responsive p-0">
+              <table class="table align-items-center justify-content-center mb-0">
+                <thead>
+                  <tr>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Futsal</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Booked by</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Time</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder text-center opacity-7 ps-2">Book Time</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for booking in bookings %}
+                  <tr>
+                    <td>
+                      <div class="d-flex px-2">
+                        <!-- <div>
+                          <img src="../assets/img/small-logos/logo-xd.svg" class="avatar avatar-sm rounded-circle me-2" alt="xd">
+                        </div> -->
+                        <div class="my-auto">
+                          <h6 class="mb-0 text-sm">{{booking.futsal}}</h6>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <p class="text-sm font-weight-bold mb-0">{{booking.user}}</p>
+                    </td>
+                    <td>
+                      <span class="text-xs font-weight-bold">{{booking.booking_date}} at {{booking.booking_time}}</span>
+                    </td>
+                    <td>
+                      {% if booking.payment_status == 'Completed' %}
+                      <span class="text-xs font-weight-bold">Paid |
+                      {% endif %}
+                      <span class="text-xs font-weight-bold">{{ booking.get_status_display }}
+                      </span>
+                    </td>
+                    <td class="align-middle text-center">
+                      <div class="d-flex align-items-center justify-content-center">
+                        <span class="me-2 text-xs font-weight-bold">{{booking.book_time}}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="align-middle">
+                      <button type="button" class="btn btn-link text-secondary mb-0" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-ellipsis-v text-xs"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li>
+                          <form method="post" action="{% url 'approve_booking' booking.id %}">
+                              {% csrf_token %}
+                              <button type="submit" class="dropdown-item text-success">
+                                  <i class="fa fa-check text-xs"></i> Approve
+                              </button>
+                          </form>
+                      </li>
+                      <li>
+                          <form method="post" action="{% url 'reject_booking' booking.id %}">
+                              {% csrf_token %}
+                              <button type="submit" class="dropdown-item text-danger">
+                                  <i class="fa fa-times text-xs"></i> Reject
+                              </button>
+                          </form>
+                      </li>
+                      <li>
+                          <form method="post" action="{% url 'complete_booking' booking.id %}">
+                              {% csrf_token %}
+                              <button type="submit" class="dropdown-item text-danger">
+                                  <i class="fa fa-times text-xs"></i> Completed
+                              </button>
+                          </form>
+                      </li>
+                  </ul>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+{% endblock content %}

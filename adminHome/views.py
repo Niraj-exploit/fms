@@ -4,16 +4,23 @@ from django.db import models
 from .forms import AddFutsalForm, UserCreationForm
 from userAuth.models import User
 from django.shortcuts import get_object_or_404
-
+from .utils import calculate_total_money_earned_by_futsals, find_most_booked_futsal_for_week
 def dashboard(request):
     total_users = get_total_users()
     total_bookings = get_total_bookings()
     total_futsals = get_total_futsals()
+    total_money_earned_by_futsals = calculate_total_money_earned_by_futsals()
+    total_money_earned = sum(total_money_earned_by_futsals.values())
+    most_booked_futsal_for_week = find_most_booked_futsal_for_week()
+    print(total_money_earned_by_futsals)
 
     context = {
         'total_users': total_users,
         'total_bookings': total_bookings,
         'total_futsals': total_futsals,
+        'total_money_earned_by_futsals': total_money_earned_by_futsals,
+        'total_money_earned': total_money_earned,
+        'most_booked_futsal_for_week': most_booked_futsal_for_week
     }
 
     return render(request, 'adminHome/dashboard.html', context)
@@ -39,6 +46,16 @@ def tablePage(request):
     }
     return render(request, 'adminHome/tables.html', context)
 
+def bookingPage(request): 
+    bookings = Booking.objects.all()
+
+
+    context = {
+        'bookings': bookings,
+        'total_money_earned_by_futsals': total_money_earned_by_futsals
+    }
+    return render(request, 'adminHome/booking.html', context)
+
 def addFutsal(request):
     if request.method == 'POST':
         form = AddFutsalForm(request.POST, request.FILES)
@@ -63,6 +80,12 @@ def rejectBooking(request, pk):
     booking.save()
     return redirect('table')
 
+def completeBooking(request, pk):
+    booking = Booking.objects.get(id=pk)
+    booking.status = 'Completed'
+    booking.save()
+    return redirect('table')
+
 def manage_user_view(request):
     users = User.objects.all().order_by('-id')
 
@@ -84,3 +107,4 @@ def manage_user_view(request):
     }
 
     return render( request, 'adminHome/manage_users.html', context)
+

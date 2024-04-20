@@ -44,18 +44,28 @@
                       <!-- <p>Status: {{ booking.status }} </p> -->
                       <div class="col-3 d-flex align-items-center "> 
                         <!-- <p>{{booking.status}}</p> -->
+
                         {% if booking.status == 'PENDING' %}
                             <span class="status-pending">{{ booking.status }}</span>
                             <a class="btn btn-outline-primary" href="{% url 'cancel_booking' booking.id %}">Cancel Booking</a>
+
                         {% elif booking.status == 'Approved' %}
                             <span class="status-confirmed">{{ booking.status }}</span>
                             {% if booking.payment_status == 'Pending' %}
                             <a class="btn btn-outline-primary" href="{% url 'initiate_payment' booking.id %}">Pay Now</a>
                             {% elif booking.payment_status == 'Completed' %}
                             <div class="d-flex flex-row">
-                            <a class="btn btn-outline-primary " href="{% url 'view_bill' booking.id %}">View Bill</a>
+                              <a class="btn btn-outline-primary " href="{% url 'view_bill' booking.id %}">View Bill</a>
                             </div>
                             {% endif %}
+
+                        {% elif booking.status == 'Completed' %}
+                            <span class="status-completed">{{ booking.status }}</span>
+                            <div class="d-flex flex-row">
+                              <a class="btn btn-outline-primary " href="{% url 'view_bill' booking.id %}">View Bill</a>
+                            </div>  
+
+                        
                         {% elif booking.status == 'Rejected' %}
                             <span class="status-rejected">{{ booking.status }}</span>
                         {% elif booking.status == 'CANCELLED' %}

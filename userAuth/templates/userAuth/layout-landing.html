@@ -111,20 +111,6 @@
       <div class="ml-auto d-flex gap-2">
         {% if request.user.is_authenticated %}
 
-        <div class="icon-cart">
-          <!-- Cart Icon with Popover -->
-          <button type="button" class="btn btn-link" id="cartPopover" data-toggle="popover" data-placement="bottom"
-                  title="Booking List" data-html="true" data-content="Your cart items go here">
-                  <i class="fa-solid fa-cart-shopping"></i>
-          </button>
-        </div>
-
-
-        <!-- Cart modal -->
-        {% include 'userHome/cart.html' %}
-        <!-- Cart modal -->
-
-
         <div class="dropdown ml-auto  d-flex gap-2">
           <a class="nav-link dropdown-toggle" href="#" role="button" id="profileDropdown" data-toggle="dropdown"
             aria-haspopup="true" aria-expanded="false">
@@ -159,22 +145,6 @@
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
 
-    <div class="footer-newsletter">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-lg-12 text-center">
-            <h4>Our Newsletter</h4>
-            <p>Stay in the loop with Futsal Pro! Subscribe to our newsletter for exclusive updates, events, and exciting
-              futsal insights. Join now!</p>
-          </div>
-          <div class="col-lg-6">
-            <form action="" method="post">
-              <input type="email" name="email"><input type="submit" value="Subscribe">
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <div class="footer-top">
       <div class="container">
@@ -194,7 +164,7 @@
             </div>
           </div>
 
-          <div class="col-lg-2 col-6 footer-links">
+          <div class="col-lg-3 col-6 footer-links">
             <h4>Useful Links</h4>
             <ul>
               <li><i class="bi bi-chevron-right"></i> <a href="#">Home</a></li>
@@ -205,28 +175,18 @@
             </ul>
           </div>
 
-          <div class="col-lg-2 col-6 footer-links">
+          <div class="col-lg-3 col-6 footer-links">
             <h4>Our Services</h4>
             <ul>
-              <li><i class="bi bi-chevron-right"></i> <a href="#">Web Design</a></li>
-              <li><i class="bi bi-chevron-right"></i> <a href="#">Web Development</a></li>
-              <li><i class="bi bi-chevron-right"></i> <a href="#">Product Management</a></li>
-              <li><i class="bi bi-chevron-right"></i> <a href="#">Marketing</a></li>
-              <li><i class="bi bi-chevron-right"></i> <a href="#">Graphic Design</a></li>
+              <li><i class="bi bi-chevron-right"></i>Online Booking </li>
+              <li><i class="bi bi-chevron-right"></i>Profile Management </li>
+              <li><i class="bi bi-chevron-right"></i>Payment Integration </li>
+              <li><i class="bi bi-chevron-right"></i>Booking Confirmation </li>
+              <li><i class="bi bi-chevron-right"></i>Booking History </li>
             </ul>
           </div>
 
-          <div class="col-lg-3 col-md-12 footer-contact text-center text-md-start">
-            <h4>Contact Us</h4>
-            <p>
-              A108 Adam Street <br>
-              New York, NY 535022<br>
-              United States <br><br>
-              <strong>Phone:</strong> +1 5589 55488 55<br>
-              <strong>Email:</strong> info@example.com<br>
-            </p>
 
-          </div>
 
         </div>
       </div>

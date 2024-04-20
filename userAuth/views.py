@@ -77,3 +77,4 @@ def ownerRegisterPage(request):
     }
     return render(request, 'userAuth/owner_register.html', context)
 
+
