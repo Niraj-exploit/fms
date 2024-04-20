@@ -95,19 +95,26 @@
       </div>
       <div class="col-lg-5">
         <div class="card h-100 p-3">
-          <div class="overflow-hidden position-relative border-radius-lg bg-cover h-100" style="background-image: url('../assets/img/ivancik.jpg');">
-            <span class="mask bg-gradient-dark"></span>
-            <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
-              <h5 class="text-white font-weight-bolder mb-4 pt-2">Your booking starts at</h5>
-              <p class="text-white">10 AM at futsal (to do)</p>
-              <a class="text-white text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
-                View Detail
-                <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
-              </a>
+            <div class="overflow-hidden position-relative border-radius-lg bg-cover h-100" style="background-image: url('../assets/img/ivancik.jpg');">
+                <span class="mask bg-gradient-dark"></span>
+                <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
+                  {% if nearest_booking %}
+                    <h5 class="text-white font-weight-bolder mb-4 pt-2">Your booking starts at</h5>
+                      <p class="text-white text-sm">{{ nearest_booking.booking_time|date:"h:i A" }} at {{ nearest_booking.futsal }} for {{ nearest_booking.book_time }} hours</p>
+                      <p class="text-white text-sm">Status: {{ nearest_booking.status }}, Total Price: {{ nearest_booking.total_price }}</p>
+                      <a class="text-white text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="#">
+                          View Detail
+                          <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
+                      </a>
+                  {% else %}
+                      <p class="text-white text-sm text-center">No upcoming booking</p>
+                  {% endif %}
+              </div>
+              
             </div>
-          </div>
         </div>
-      </div>
+    </div>
+    
     </div>
 
 

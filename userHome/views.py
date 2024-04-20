@@ -16,7 +16,7 @@ import requests
 import json
 from django.db.models import Count
 from adminHome.utils import find_most_booked_futsal_for_week
-
+from .utils import find_nearest_booking
 
 
 def homePage(request):
@@ -24,9 +24,10 @@ def homePage(request):
     total_futsals = Futsal.objects.count()
     form = FutsalSearchForm()
     futsal_types = Futsal.objects.values_list('futsal_type', flat=True).distinct()
-    
+    nearest_booking = find_nearest_booking()
+
     most_booked_futsal, num_bookings = find_most_booked_futsal_for_week()
-    print(most_booked_futsal, num_bookings)
+    print("Nearest booking time", nearest_booking)
 
 
     if request.user.is_authenticated:
@@ -42,6 +43,7 @@ def homePage(request):
         'user_booked_count': user_booked_count,
         'most_booked_futsal': most_booked_futsal,
         'form': form,
+        'nearest_booking': nearest_booking
     }
 
     return render (request, 'userHome/home.html', context) 
@@ -329,6 +331,7 @@ def payment_detail(request):
         return HttpResponse("Payment not completed", status=400)
 
 def view_bill(request, booking_id):
+
     booking_instance = Booking.objects.get(id = booking_id)
     print(booking_instance.pidx)
     pidx = booking_instance.pidx

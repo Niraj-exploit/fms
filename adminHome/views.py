@@ -52,7 +52,6 @@ def bookingPage(request):
 
     context = {
         'bookings': bookings,
-        'total_money_earned_by_futsals': total_money_earned_by_futsals
     }
     return render(request, 'adminHome/booking.html', context)
 
