@@ -41,9 +41,9 @@
                       <p>Booking Time: {{ booking.booking_date }} - {{ booking.booking_time }} </p>
                       <p>For: {{ booking.book_time }} hour</p>
                       <p>Total Price: Rs {{booking.total_price}}</p>
-                      <!-- <p>Status: {{ booking.status }} </p> -->
+
                       <div class="col-3 d-flex align-items-center "> 
-                        <!-- <p>{{booking.status}}</p> -->
+
 
                         {% if booking.status == 'PENDING' %}
                             <span class="status-pending">{{ booking.status }}</span>

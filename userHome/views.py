@@ -18,7 +18,7 @@ from django.db.models import Count
 from adminHome.utils import find_most_booked_futsal_for_week
 from .utils import find_nearest_booking
 
-
+@login_required
 def homePage(request):
     futsals = Futsal.objects.all()
     total_futsals = Futsal.objects.count()
@@ -68,7 +68,7 @@ def homePage(request):
 #     }
 #     return render (request, 'userHome/futsal_list.html', context)
 
-
+@login_required
 def bookFutsal(request, pk):
     futsal = Futsal.objects.get(id=pk)
     if request.user.is_authenticated:
@@ -116,11 +116,12 @@ def bookFutsal(request, pk):
 def futsal_section(request):
     futsals = Futsal.objects.all()
 
+@login_required
 def logoutUser(request):
     logout(request)
     return redirect('login')
 
-
+@login_required
 def myBookings(request):
     bookings = Booking.objects.filter(user=request.user).order_by('-id')
     if request.user.is_authenticated:
@@ -138,6 +139,7 @@ def myBookings(request):
 def topBooked(request):
     topBooked = Booking.object.filter()
 
+@login_required
 def searchFutsal(request):
     print("hello")
     form = FutsalSearchForm()
@@ -168,7 +170,7 @@ def searchFutsal(request):
     context = {'form': form}
     return render(request, 'userHome/home.html', context)
 
-
+@login_required
 def futsalPage(request):
     futsals = Futsal.objects.all()
     form = FutsalSearchForm()
@@ -186,7 +188,7 @@ def futsalPage(request):
 
     return render(request, 'userHome/futsal_list.html', context)
 
-
+@login_required
 def cancelBooking(request, pk):
     booking = Booking.objects.get(id=pk)
     try:
@@ -197,12 +199,12 @@ def cancelBooking(request, pk):
     
     return redirect('my_bookings')
 
+@login_required
 def manageFutsal(request):
     futsals = Futsal.objects.filter(addedBy=request.user)
     futsal_form = AddFutsalForm()
 
     if request.method == 'POST':
-        print('Hello')
         futsal_form = AddFutsalForm(request.POST, request.FILES)
         if futsal_form.is_valid():
             futsal = futsal_form.save(commit=False)
@@ -275,7 +277,7 @@ def initiate_payment(request, booking_id):
         # Handle request exception
         return render(request, 'payment_error.html', {'error_message': str(e)})
 
-
+@login_required
 def payment_detail(request):
     pidx = request.GET.get('pidx')
     transaction_id = request.GET.get('transaction_id')
@@ -330,6 +332,7 @@ def payment_detail(request):
         print("Payment not completed")
         return HttpResponse("Payment not completed", status=400)
 
+@login_required
 def view_bill(request, booking_id):
 
     booking_instance = Booking.objects.get(id = booking_id)
@@ -366,3 +369,32 @@ def view_bill(request, booking_id):
             'booking': booking_instance
     }
     return render(request, 'userHome/payment_detail.html', context)
+
+@login_required
+def bookingPage(request): 
+    owner_id = request.user.id
+    bookings = Booking.objects.filter(futsal__addedBy_id=owner_id)
+
+    context = {
+        'bookings': bookings,
+    }
+    return render(request, 'userHome/manage_own_booking.html', context)
+
+
+def approveBooking(request, pk):
+    booking = Booking.objects.get(id=pk)
+    booking.status = 'Approved'
+    booking.save()
+    return redirect('/manage_bookings/')
+
+def rejectBooking(request, pk):
+    booking = Booking.objects.get(id=pk)
+    booking.status = 'Rejected'
+    booking.save()
+    return redirect('/manage_bookings/')
+
+def completeBooking(request, pk):
+    booking = Booking.objects.get(id=pk)
+    booking.status = 'Completed'
+    booking.save()
+    return redirect('/manage_bookings/')
