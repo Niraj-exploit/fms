@@ -1,0 +1,156 @@
+{% extends 'userHome/main.html' %} {% load static %} {% block content %}
+<link rel="stylesheet" href="{% static 'userHome/css/my_team.css' %}" />
+<section id="team" class="team_area">
+  <div class="container">
+    <div class="row d-flex justify-content-center">
+      {% if team_exists %}
+      <div
+        class="col-lg-12 col-sm-4 col-xs-12 wow fadeInUp text-center"
+        data-wow-duration="1s"
+        data-wow-delay="0.1s"
+        data-wow-offset="0"
+        style="
+          visibility: visible;
+          animation-duration: 1s;
+          animation-delay: 0.1s;
+          animation-name: fadeInUp;
+        "
+      >
+		<div class="d-flex justify-content-between align-items-center mt-3">
+			<h3 class="text-center">{{ team.name }}</h3>
+			<button class="btn btn-danger">Destroy</button>
+		</div>
+        <div class="our-team">
+          <div class="single-team">
+            <div class="circle-img">
+              <img src="{{ team.logo.url }}" class="img-fluid" alt="" />
+            </div>
+            <h3>{{ team.team_location }}</h3>
+            <p>{{ team.captain }}</p>
+          </div>
+          <style>
+            .circle-img {
+              width: 150px; /* Adjust size as needed */
+              height: 150px; /* Adjust size as needed */
+              border-radius: 50%; /* Makes the div circular */
+              overflow: hidden; /* Ensures the image fits inside the circle */
+              margin: 0 auto; /* Centers the circle horizontally */
+            }
+
+            .circle-img img {
+              width: 100%; /* Makes the image fill the circular div */
+              height: 100%; /* Makes the image fill the circular div */
+              object-fit: cover; /* Ensures the image covers the entire div */
+            }
+          </style>
+          <!-- <ul class="social">
+				<li><a href="#" class="fa fa-facebook facebook"></a></li>
+				<li><a href="#" class="fa fa-twitter twitter"></a></li>
+				<li><a href="#" class="fa fa-google google"></a></li>
+			</ul> -->
+        </div>
+        <!--- END OUR TEAM -->
+      </div>
+      {% if player_exists %}
+	  <div class="d-flex justify-content-between align-items-center">
+		<h5 class="text-center ">{{team.name}} Players</h5>
+	  <button type="button" class="btn btn-success float-end" data-bs-toggle="modal" data-bs-target="#addUserModal">Add</button>
+
+	  </div>
+	  <section id="team" class="team_area mt-2">
+		<div class="container">
+		  <div class="row justify-content-center">
+			{% for player in players %}
+			<div
+			  class="col-lg-2 col-sm-4 col-xs-12 wow fadeInUp"
+			  data-wow-duration="1s"
+			  data-wow-delay="0.1s"
+			  data-wow-offset="0"
+			  style="
+				visibility: visible;
+				animation-duration: 1s;
+				animation-delay: 0.1s;
+				animation-name: fadeInUp;
+			  "
+			>
+			  <div class="our-team">
+				<div class="single-team">
+				  <div class="image-container">
+					<img
+					  src="{{ player.image.url }}"
+					  class="img-fluid"
+					  alt=""
+					/>
+				  </div>
+				  <h3 class="text-center">{{ player.name }}</h3>
+				  <p class="text-center">{{ player.player_location }}</p>
+				</div>
+			  </div>
+			</div>
+			{% endfor %}
+		  </div>
+		</div>
+	  </section>
+	  
+	  <style>
+		.image-container {
+		  width: 100%; /* Set the desired width */
+		  height: 200px; /* Set the desired height */
+		  overflow: hidden; /* Hide overflow if the image is larger */
+		  border-radius: 50%; /* Make the container round for a circle effect */
+		}
+	  
+		.image-container img {
+		  width: 100%; /* Make the image take the full width of the container */
+		  height: 100%; /* Make the image take the full height of the container */
+		  object-fit: cover; /* Maintain aspect ratio and cover the container */
+		}
+	  </style>
+		{% else %}
+	  	<p class="text-center">No players on your team.</p>
+      {% endif %}
+
+      <!--- END COL -->
+      {% else %}
+      <p>You are not associated with any team.</p>
+      <div class="d-flex justify-content-center gap-3">
+        <span>
+          <a href="{% url 'team_registration'%}"> Register a team </a></span
+        >
+        <span> <a href="{% url 'team_registration'%}"> Join a team </a></span>
+      </div>
+	  
+      {% endif %}
+    </div>
+    <!--- END ROW -->
+  </div>
+  <!--- END CONTAINER -->
+</section>
+
+
+<!-- Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <h5 class="modal-title" id="addUserModalLabel">Add Player</h5>
+		  <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+		</div>
+		<div class="modal-body">
+		  <!-- Add your form here, you can render it using Django form rendering -->
+		  <form method="post" enctype="multipart/form-data">
+			{% csrf_token %}
+			<!-- Your form fields go here -->
+			<div class="mb-3 ">
+			  {{player_form}}
+			</div>
+			<!-- Add other form fields as needed -->
+			<button type="submit" class="btn btn-primary">Submit</button>
+		  </form>
+		</div>
+	  </div>
+	</div>
+  </div>
+  
+
+{% endblock content %}

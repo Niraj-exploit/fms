@@ -7,75 +7,114 @@
       <div class="">
         <div class="container mt-5" data-aos="fade-up">
           <style>
-            .fixed-height-image {
-              height: 200px;
-              /* Set the desired height */
-              object-fit: cover;
-              /* Maintain aspect ratio and cover the container */
-              width: 100%;
-              /* Ensure the image takes up the full width of its container */
-            }
-
             .fixed-height-image-container {
               height: 250px;
               margin: 10px;
               border-radius: 10px;
               overflow: hidden;
-              /* Hide any overflow beyond the specified height */
             }
 
+            .card {
+              position: relative;
+              overflow: hidden;
+              border: 1px solid #ddd;
+              border-radius: 10px;
+              margin-bottom: 15px;
+              background-size: cover;
+              background-position: center;
+            }
 
+            .card-content {
+              padding: 15px;
+              position: relative; /* Ensure the buttons inside are positioned relative to this container */
+              z-index: 1; /* Ensure card content is above the background image */
+            }
+
+            .logo-container {
+              position: absolute;
+              top: -8px;
+              right: 15px;
+              display: flex;
+              align-items: center;
+              z-index: 0; /* Behind other content */
+              opacity: 0.3; /* Adjust the transparency */
+            }
+
+            .logo {
+              width: 300px;  /* Increased size */
+              height: 300px; /* Increased size */
+              border-radius: 50%;
+              background-size: cover;
+              background-position: center;
+            }
+
+            .vs-logo {
+              width: 100px;
+              height: 100px;
+              position: absolute;
+              bottom: 300px;
+              right: 490px;
+            }
+
+            .status-pending, .status-confirmed, .status-completed, .status-rejected, .status-cancelled {
+              margin-right: 10px;
+            }
+
+            .btn-container {
+              position: relative;
+              z-index: 2; /* Ensure buttons are above all other content */
+            }
           </style>
 
-          <div class="row ">
-            {% for booking in bookings %}
+          <div class="row">
+            {% for booking, opponent_logo_url in booking_opponent_data %}
             <div class="card mb-3">
-                <div class="row d-flex align-items-center">
-                    <div class="col-6">
-                      <img src="{{ booking.futsal.images.url }}" class="img-fluid fixed-height-image-container" alt="">
-                    </div>
-                    <div class="col-6">
-                      <h3>{{ booking.futsal.name }}</h3>
-
-
-                      <p>Booking Time: {{ booking.booking_date }} - {{ booking.booking_time }} </p>
-                      <p>For: {{ booking.book_time }} hour</p>
-                      <p>Total Price: Rs {{booking.total_price}}</p>
-
-                      <div class="col-3 d-flex align-items-center "> 
-
-
-                        {% if booking.status == 'PENDING' %}
-                            <span class="status-pending">{{ booking.status }}</span>
-                            <a class="btn btn-outline-primary" href="{% url 'cancel_booking' booking.id %}">Cancel Booking</a>
-
-                        {% elif booking.status == 'Approved' %}
-                            <span class="status-confirmed">{{ booking.status }}</span>
-                            {% if booking.payment_status == 'Pending' %}
-                            <a class="btn btn-outline-primary" href="{% url 'initiate_payment' booking.id %}">Pay Now</a>
-                            {% elif booking.payment_status == 'Completed' %}
-                            <div class="d-flex flex-row">
-                              <a class="btn btn-outline-primary " href="{% url 'view_bill' booking.id %}">View Bill</a>
-                            </div>
-                            {% endif %}
-
-                        {% elif booking.status == 'Completed' %}
-                            <span class="status-completed">{{ booking.status }}</span>
-                            <div class="d-flex flex-row">
-                              <a class="btn btn-outline-primary " href="{% url 'view_bill' booking.id %}">View Bill</a>
-                            </div>  
-
-                        
-                        {% elif booking.status == 'Rejected' %}
-                            <span class="status-rejected">{{ booking.status }}</span>
-                        {% elif booking.status == 'CANCELLED' %}
-                            <span class="status-cancelled" >{{ booking.status }}</span>
-                        {% endif %}
-                    </div>
-                      <!-- <a class="btn btn-outline-primary" href="{% url 'cancel_booking' booking.id %}">Cancel Booking</a> -->
-
-                    </div>
+              <div class="row d-flex align-items-center">
+                <div class="col-6">
+                  <img src="{{ booking.futsal.images.url }}" class="img-fluid fixed-height-image-container" alt="">
+                </div>
+                <div class="col-6 card-content">
+                  <div class="btn-container">
+                    {% if booking.status == 'PENDING' %}
+                      <span class="status-pending">{{ booking.status }}</span>
+                      <a class="btn btn-outline-primary" href="{% url 'cancel_booking' booking.id %}">Cancel Booking</a>
+                    {% elif booking.status == 'Approved' %}
+                      <span class="status-confirmed">{{ booking.status }}</span>
+                      {% if booking.payment_status == 'Pending' %}
+                        <a class="btn btn-outline-primary" href="{% url 'initiate_payment' booking.id %}">Pay Now</a>
+                      {% elif booking.payment_status == 'Completed' %}
+                        <div class="d-flex flex-row">
+                          <a class="btn btn-outline-primary" href="{% url 'view_bill' booking.id %}">View Bill</a>
+                        </div>
+                      {% endif %}
+                    {% elif booking.status == 'Completed' %}
+                      <span class="status-completed">{{ booking.status }}</span>
+                      <div class="d-flex flex-row">
+                        <a class="btn btn-outline-primary" href="{% url 'view_bill' booking.id %}">View Bill</a>
+                      </div>
+                    {% elif booking.status == 'Rejected' %}
+                      <span class="status-rejected">{{ booking.status }}</span>
+                    {% elif booking.status == 'CANCELLED' %}
+                      <span class="status-cancelled">{{ booking.status }}</span>
+                    {% endif %}
                   </div>
+                  {% if opponent_logo_url %}
+                    <div class="logo-container d-flex gap-7">
+                      <div class="logo user-team" style="background-image: url('{{ user_team_logo_url }}');"></div>
+                      <div class="vs-logo"><img src="{% static 'userHome/img/vs.png' %}" alt=""></div>
+                      <div class="logo opponent-team" style="background-image: url('{{ opponent_logo_url }}');"></div>
+                    </div>
+                  {% else %}
+                    <div class="logo-container">
+                      <div class="logo user-team" style="background-image: url('{{ user_team_logo_url }}'); right: 0;"></div>
+                    </div>
+                  {% endif %}
+                  <h3>{{ booking.futsal.name }}</h3>
+                  <p>Booking Time: {{ booking.booking_date }} - {{ booking.booking_time }}</p>
+                  <p>For: {{ booking.book_time }} hour</p>
+                  <p>Total Price: Rs {{ booking.total_price }}</p>
+                </div>
+              </div>
             </div>
             {% endfor %}
           </div>

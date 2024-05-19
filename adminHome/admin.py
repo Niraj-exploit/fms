@@ -1,10 +1,11 @@
 from django.contrib import admin
-from .models import Futsal, Booking
-
-admin.site.register(Futsal)
-
+from .models import Booking
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
-    list_display = ('user', 'futsal', 'booking_date', 'booking_time', 'book_time', 'get_status_display')
+    list_display = ('user', 'futsal', 'booking_date', 'get_booking_time', 'get_status_display')
 
+    def get_booking_time(self, obj):
+        return obj.booking_time.strftime("%I:%M %p") if obj.booking_time else None
+
+    get_booking_time.short_description = 'Booking Time'

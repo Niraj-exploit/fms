@@ -1,0 +1,101 @@
+{% extends 'userHome/main.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/form__group.css' %}">
+<div class="container-fluid py-4">
+
+    <div class="row">
+      <div class="col-12">
+        <div class="card mb-4">
+          <div class="card-header pb-0 d-flex align-items-center justify-content-between">
+            <h6>Futsal Kit table</h6>
+            <button type="button" class="btn btn-success float-end" data-bs-toggle="modal" data-bs-target="#addFutsalKitModal">Add</button>
+          </div>
+          <div class="card-body px-0 pt-0 pb-2">
+            <div class="table-responsive p-0">
+              <table class="table align-items-center justify-content-center mb-0">
+                <thead>
+                  <tr>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Name</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Image</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Price</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for kit in futsalKits %}
+                  <tr>
+                    <td>
+                      <div class="d-flex px-2">
+                        <div class="my-auto">
+                          <h6 class="mb-0 text-sm">{{ kit.name }}</h6>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <p class="text-sm font-weight-bold mb-0">
+                        <img src="{{ kit.image.url }}" alt="{{ kit.name }}" class="img-fluid" style="max-height: 50px;">
+                      </p>
+                    </td>
+                    <td>
+                      <span class="text-xs font-weight-bold">{{ kit.price }}</span>
+                    </td>
+                    <td class="align-middle">
+                      <button type="button" class="btn btn-link text-secondary mb-0" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-ellipsis-v text-xs"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li>
+                          <a class="dropdown-item text-warning" href="{% url 'update_kit' kit.id %}">
+                            <i class="fa fa-edit text-xs"></i> Update
+                          </a>
+                        </li>
+                        <li>
+                          <form method="post" action="{% url 'delete_kit' kit.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item text-danger">
+                              <i class="fa fa-trash text-xs"></i> Delete
+                            </button>
+                          </form>
+                        </li>
+                      </ul>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Add Futsal Kit Modal -->
+<div class="modal fade" id="addFutsalKitModal" tabindex="-1" aria-labelledby="addFutsalKitModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addFutsalKitModalLabel">Add Futsal Kit</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="mb-3">
+            {{ kit_form.name.label_tag }} {{ kit_form.name }}
+          </div>
+          <div class="mb-3">
+            {{ kit_form.image.label_tag }} {{ kit_form.image }}
+          </div>
+          <div class="mb-3">
+            {{ kit_form.price.label_tag }} {{ kit_form.price }}
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

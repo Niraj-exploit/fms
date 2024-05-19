@@ -1,12 +1,14 @@
+from django import template
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from adminHome.models import Futsal
 from django.contrib.auth import logout
 from adminHome.models import Futsal, Booking
 from userAuth.models import User
-from datetime import datetime, timedelta
 from django.contrib import messages
-from .forms import FutsalSearchForm
+
+from userHome.models import Player, Team, FutsalKit, CartItem
+from .forms import FutsalSearchForm, TeamForm, PlayerForm, FutsalKitForm
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from adminHome.forms import AddFutsalForm
@@ -14,7 +16,6 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 import requests
 import json
-from django.db.models import Count
 from adminHome.utils import find_most_booked_futsal_for_week
 from .utils import find_nearest_booking
 
@@ -71,6 +72,20 @@ def homePage(request):
 @login_required
 def bookFutsal(request, pk):
     futsal = Futsal.objects.get(id=pk)
+    user = request.user
+    user_team = Team.objects.filter(name=user.user_team).first()
+    if user_team:
+        location_parts = user_team.team_location.split(',')
+        location_parts = [part.strip() for part in location_parts]
+        # Build the query to find teams with matching location parts
+        query = Q()
+        for part in location_parts:
+            query |= Q(team_location__icontains=part)
+        
+        # Search for nearby teams based on the constructed query
+        nearby_teams = Team.objects.filter(query).exclude(id=user_team.id)
+
+
     if request.user.is_authenticated:
         user_booked_futsals = Booking.objects.filter(user=request.user)
     else:
@@ -89,7 +104,8 @@ def bookFutsal(request, pk):
         book_time_str = request.POST.get('book_time')
         book_time = int(book_time_str)
         total_price = book_time * futsal.price
-        print(booking_date, booking_time, book_time)
+        # opponent_id = request.POST.get('opponent_id')
+        # opponent = Team.objects.get(id=opponent_id)
         try:
             booking = Booking.objects.create(
             user=request.user,
@@ -97,7 +113,8 @@ def bookFutsal(request, pk):
             booking_date=booking_date,
             booking_time=booking_time,
             book_time=book_time,
-            total_price=total_price
+            total_price=total_price,
+            # opponent=opponent 
         )
             messages.success(request, f' {'Successfully Booked at ' + booking.futsal.name }')
             return redirect('/futsal_list/')
@@ -109,9 +126,13 @@ def bookFutsal(request, pk):
         'futsal': futsal,
         'time_slots': time_slots,
         'user_booked_futsals': user_booked_futsals,
+        'nearest_teams': nearby_teams,
+        'team_location': user_team.team_location,
 
     }
     return render(request, 'userHome/checkout.html', context)
+
+
 
 def futsal_section(request):
     futsals = Futsal.objects.all()
@@ -124,16 +145,19 @@ def logoutUser(request):
 @login_required
 def myBookings(request):
     bookings = Booking.objects.filter(user=request.user).order_by('-id')
-    if request.user.is_authenticated:
-        user_booked_futsals = Booking.objects.filter(user=request.user)
+    user_team_logo_url = request.user.user_team.logo.url if request.user.user_team else None
+    
+    booking_opponent_data = []
+    for booking in bookings:
+        opponent_logo_url = booking.opponent.logo.url if booking.opponent else None
+        booking_opponent_data.append((booking, opponent_logo_url))
 
-
-    print(bookings)
     context = {
-        'bookings': bookings,
-        'user_booked_futsals':  user_booked_futsals,
+        'booking_opponent_data': booking_opponent_data,
+        'user_team_logo_url': user_team_logo_url,
     }
     return render(request, 'userHome/my_bookings.html', context)
+
 
 
 def topBooked(request):
@@ -398,3 +422,197 @@ def completeBooking(request, pk):
     booking.status = 'Completed'
     booking.save()
     return redirect('/manage_bookings/')
+
+@login_required
+def myTeam(request): 
+    user = request.user
+    print("User avatar",user.avatar.url)
+    if user.is_authenticated and user.user_team:
+        team = user.user_team
+        team_detail = Team.objects.filter(name=team.name).first()  
+        print(team_detail)
+        player_detail = Player.objects.filter(team = team_detail.id)
+        print(player_detail)
+        player_form = PlayerForm()
+        if request.method == 'POST':
+            player_form = PlayerForm(request.POST, request.FILES)
+            if player_form.is_valid():
+                new_player = player_form.save(commit=False)
+                new_player.team = team_detail
+                new_player.save()
+
+        if player_detail:  
+            context = {
+                'team': team_detail,
+                'team_exists': True,
+                'player_exists': True,
+                'players': player_detail,
+                'player_form': player_form
+            }
+            return render(request, 'userHome/my_team.html', context)
+        else:
+            context = {
+                'team': team_detail,
+                'team_exists': True,
+                'player_exists': False
+            }
+            return render(request, 'userHome/my_team.html', context)
+    else:
+        return render(request, 'userHome/my_team.html', {'team_exists': False})
+
+
+
+def team_registration(request):
+    if request.method == 'POST':
+        team_form = TeamForm(request.POST, request.FILES)
+        if team_form.is_valid():
+            team = team_form.save()  # Save the team first
+
+            user = request.user
+            user.user_team = team  # Update user's team
+            user.save()
+
+            player = Player.objects.create(
+                team=team,
+                name=user.username,
+                role='Captain',
+                image=user.avatar.url,
+                player_location=user.address
+            )
+
+            team.captain = player  # Set the team's captain
+            team.save()  # Save the team again to update captain
+
+            return redirect('my_team')
+    else:
+        team_form = TeamForm()
+    return render(request, 'userHome/team_registration.html', {'team_form': team_form})
+
+
+def find_opponent(request):
+    user = request.user
+    user_team = Team.objects.filter(name=user.user_team).first()
+    
+    if user_team:
+        # Split the user's team location into individual words
+        location_parts = user_team.team_location.split(',')
+        location_parts = [part.strip() for part in location_parts]
+
+        # Build the query to find teams with matching location parts
+        query = Q()
+        for part in location_parts:
+            query |= Q(team_location__icontains=part)
+        
+        # Search for nearby teams based on the constructed query
+        nearby_teams = Team.objects.filter(query).exclude(id=user_team.id)
+
+        # Get all teams excluding the user's team
+        all_teams = Team.objects.all().exclude(id=user_team.id)
+
+        context = {
+            'nearest_teams': nearby_teams,
+            'team_location': user_team.team_location,
+            'teams': all_teams
+        }
+    else:
+        context = {
+            'teams': []
+        }
+
+    return render(request, 'userHome/find_opponent.html', context)
+
+def shop_kit(request):
+    available_kits = FutsalKit.objects.all()
+    context = {
+        'available_kits': available_kits
+    }
+    return render(request, 'userHome/shop_kit.html', context)
+
+@login_required
+def add_to_cart(request, kit_id):
+    kit = get_object_or_404(FutsalKit, id=kit_id)
+    cart_item, created = CartItem.objects.get_or_create(user=request.user, kit=kit)
+    if not created:
+        cart_item.quantity += 1
+    cart_item.total_price = cart_item.quantity * kit.price
+    cart_item.save()
+    return redirect('shop_kits')
+
+
+@login_required
+def cart_view(request):
+    cart_items = CartItem.objects.filter(user=request.user)
+    context = {
+        'cart_items': cart_items
+    }
+    return render(request, 'userHome/cart.html', context)
+
+@login_required
+def order_detail(request, order_id):
+    order = get_object_or_404(CartItem, id=order_id, user=request.user)
+    context = {
+        'order': order
+    }
+    return render(request, 'userHome/order_detail.html', context)
+
+register = template.Library()
+
+@register.filter
+def progress_percentage(status):
+    if status == 'Pending':
+        return 50
+    elif status == 'Success':
+        return 100
+    return 0
+
+@register.filter
+def status_class(status):
+    if status == 'Pending':
+        return 'bg-warning'
+    elif status == 'Success':
+        return 'bg-success'
+    return 'bg-secondary'
+
+@login_required
+def manage_kits(request):
+    user = request.user
+    kit_form = FutsalKitForm()
+
+    if user.is_futsal_owner:
+        futsalKits = FutsalKit.objects.filter(added_by=user)
+    else:
+        futsalKits = []
+
+    if request.method == 'POST':
+        kit_form = FutsalKitForm(request.POST, request.FILES)
+        if kit_form.is_valid():
+            new_kit = kit_form.save(commit=False)
+            new_kit.added_by = user
+            new_kit.save()
+            return redirect('manage_kits') 
+
+    context = {
+        'futsalKits': futsalKits,
+        'kit_form': kit_form
+    }
+    return render(request, 'userHome/owner_futsal_kit.html', context)
+
+@login_required
+def update_kit(request, pk):
+    kit = get_object_or_404(FutsalKit, pk=pk, added_by=request.user)
+    if request.method == 'POST':
+        form = FutsalKitForm(request.POST, request.FILES, instance=kit)
+        if form.is_valid():
+            form.save()
+            return redirect('manage_kits')
+    else:
+        form = FutsalKitForm(instance=kit)
+    return render(request, 'userHome/update_futsal_kit.html', {'form': form, 'kit': kit})
+
+@login_required
+def delete_kit(request, pk):
+    kit = get_object_or_404(FutsalKit, pk=pk, added_by=request.user)
+    if request.method == 'POST':
+        kit.delete()
+        return redirect('manage_kits')
+    return render(request, 'userHome/delete_futsal_kit.html', {'kit': kit})

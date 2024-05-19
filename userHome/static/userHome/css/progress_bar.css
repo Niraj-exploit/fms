@@ -1,0 +1,35 @@
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+  margin: 20px auto;
+}
+
+input[type="radio"] {
+  display: none;
+}
+
+label {
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+}
+
+.line {
+  flex-grow: 1;
+  height: 2px;
+  background-color: #ccc;
+  margin: 0 10px;
+}
+
+.line-active {
+  background-color: #007bff;
+}
+
+input[type="radio"]:checked + label {
+  background-color: #007bff;
+  color: #fff;
+}

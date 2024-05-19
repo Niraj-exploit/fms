@@ -45,7 +45,10 @@ def loginPage(request):
 
         if authenticated_user is not None:
             login(request, authenticated_user)
-            return redirect('home')
+            if('next' in request.POST):
+                return redirect(request.POST.get('next'))
+            else:
+                return redirect('home')
         else:
             messages.error(request, 'Username or password does not match')
 

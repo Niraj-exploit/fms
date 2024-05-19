@@ -1,10 +1,15 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Booking, Futsal
 from django.db import models
 from .forms import AddFutsalForm, UserCreationForm
 from userAuth.models import User
-from django.shortcuts import get_object_or_404
 from .utils import calculate_total_money_earned_by_futsals, find_most_booked_futsal_for_week
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.decorators import login_required
+from .decorators import admin_required
+
+@admin_required
+@login_required
 def dashboard(request):
     total_users = get_total_users()
     total_bookings = get_total_bookings()
@@ -25,15 +30,19 @@ def dashboard(request):
 
     return render(request, 'adminHome/dashboard.html', context)
 
+
 def get_total_users():
     # return Booking.objects.values('user').annotate(user_count=models.Count('user')).count()
     return User.objects.count()
 
+
 def get_total_bookings():
     return Booking.objects.count()
 
+
 def get_total_futsals():
     return Futsal.objects.count()
+
 
 def tablePage(request):
     futsals = Futsal.objects.all()
@@ -55,6 +64,7 @@ def bookingPage(request):
     }
     return render(request, 'adminHome/booking.html', context)
 
+@login_required
 def addFutsal(request):
     if request.method == 'POST':
         form = AddFutsalForm(request.POST, request.FILES)
@@ -67,43 +77,78 @@ def addFutsal(request):
             form = AddFutsalForm()
     return render(request, 'adminHome/table.html', {'form': form})
 
+@login_required
 def approveBooking(request, pk):
     booking = Booking.objects.get(id=pk)
     booking.status = 'Approved'
     booking.save()
     return redirect('table')
 
+@login_required
 def rejectBooking(request, pk):
     booking = Booking.objects.get(id=pk)
     booking.status = 'Rejected'
     booking.save()
     return redirect('table')
 
+@login_required
 def completeBooking(request, pk):
     booking = Booking.objects.get(id=pk)
     booking.status = 'Completed'
     booking.save()
     return redirect('table')
 
+@login_required
 def manage_user_view(request):
+    print("Hello")
     users = User.objects.all().order_by('-id')
+    print(users)
+    form = UserCreationForm()
 
     if request.method == 'POST':
-        if 'edit' in request.POST:
-            user_id = request.POST.get('user_id')
-            user = get_object_or_404(User, pk=user_id)
-            form = UserCreationForm(request.POST, instance=user)
-        else:
-            form = UserCreationForm(request.POST)
+        form = UserCreationForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('manage_users')
-    else:
-        form = UserCreationForm()
+            return redirect('manage_user_view')
+
     context = {
-        'users' : users,
-        'form' : form
+        'users': users,
+        'form': form
     }
 
-    return render( request, 'adminHome/manage_users.html', context)
+    return render(request, 'adminHome/manage_users.html', context)
 
+@login_required
+def update_user(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+    form = UserCreationForm(instance=user)
+
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST, instance=user)
+        if form.is_valid():
+            new_password = form.cleaned_data.get('password')
+            if new_password:
+                user.set_password(new_password) 
+            else:
+                form.cleaned_data.pop('password', None)
+            form.save()
+            return redirect('manage_user_view')
+
+    context = {'form': form}
+    return render(request, 'adminHome/update_user.html', context)
+
+@login_required
+def delete_user(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+    user.delete()
+    return redirect('manage_user_view')
+
+@login_required
+def user_detail(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+    bookings = Booking.objects.filter(user=user)
+    context = {
+        'user': user,
+        'bookings': bookings
+    }
+    return render(request, 'adminHome/user_detail.html', context)

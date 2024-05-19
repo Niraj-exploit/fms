@@ -95,41 +95,34 @@
     <div class="row mt-4">
       <div class="col-lg-7 mb-lg-0 mb-4">
         <div class="card">
-          <div class="card-body p-3">
-            <div class="row">
-              <h5 class="font-weight-bolder mb-2 text-center">Top booked futsal of the week</h5>
-              <div class="col-lg-6">
-                <div class="card">
-                  <div class="d-flex flex-column h-100">
-                    <!-- <p class="mb-1 pt-2 text-bold">Built by developers</p> -->
-                    {% if most_booked_futsal_for_week %}
-                    <p class="mb-1 font-weight-bold">Name: {{ most_booked_futsal_for_week.0.name }}</p>
-                    <p class="mb-1 font-weight-bold">Location: {{ most_booked_futsal_for_week.0.location }}</p>
-                    <p class="mb-5 font-weight-bold">Price: {{ most_booked_futsal_for_week.0.price }}</p>
+            <div class="card-body p-3">
+                <h5 class="font-weight-bolder mb-2 text-center">Top Booked Futsal of the Week</h5>
+                {% if most_booked_futsal %}
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="d-flex flex-column h-100">
+                                <p class="mb-1 font-weight-bold">Name: {{ most_booked_futsal.name }}</p>
+                                <p class="mb-1 font-weight-bold">Location: {{ most_booked_futsal.location }}</p>
+                                <p class="mb-4 font-weight-bold">Price: {{ most_booked_futsal.price }}</p>
+                                <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="{% url 'book_futsal' most_booked_futsal.id %}">
+                                    Book Now
+                                    <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 ms-auto mt-4 mt-lg-0">
+                            <div class="border rounded overflow-hidden">
+                                <img class="w-100" src="{{ most_booked_futsal.images.url }}" alt="{{ most_booked_futsal.name }}">
+                            </div>
+                        </div>
+                    </div>
                 {% else %}
-                    <p class="font-weight-bold">No futsal has been booked for the current week.</p>
+                    <p class="font-weight-bold text-center">No futsal has been booked for the current week.</p>
                 {% endif %}
-                
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-5 ms-auto text-center mt-5 mt-lg-0">
-                <div class="border-radius-lg h-100">
-                  <div class="position-relative d-flex align-items-center justify-content-center h-100">
-                    {% if most_booked_futsal_for_week %}
-                      <div class="image-container border rounded overflow-hidden">
-                        <img class="w-100" src="{{ most_booked_futsal_for_week.0.images.url }}" alt="{{ most_booked_futsal_for_week.0.name }}">
-                      </div>
-                    {% else %}
-                      <p class="m-0">No futsal has been booked for the current week.</p>
-                    {% endif %}
-                  </div>
-                </div>
-              </div>
             </div>
-          </div>
         </div>
-      </div>
+    </div>
+    
       <div class="col-lg-5">
         <div class="card h-100 p-3">
           <div class="overflow-hidden position-relative border-radius-lg bg-cover h-100" style="background-image: url('../assets/img/ivancik.jpg');">

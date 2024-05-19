@@ -4,6 +4,8 @@ from .models import Booking, Futsal
 from collections import defaultdict
 from decimal import Decimal
 
+
+
 def find_most_booked_futsal_for_week():
     # Calculate the start and end of the current week
     today = datetime.today()
