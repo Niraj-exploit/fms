@@ -95,61 +95,69 @@
           </style>
 
           <div class="row">
-            {% for booking, opponent_logo_url in booking_opponent_data %}
-            <div class="card mb-3">
-              <div class="row d-flex align-items-center">
-                <div class="col-6">
-                  <img src="{{ booking.futsal.images.url }}" class="img-fluid fixed-height-image-container" alt="">
-                </div>
-                <div class="col-6 card-content">
-                  <h3>{{ booking.futsal.name }}</h3>
-                  <p>Booking Time: {{ booking.booking_date }} - {{ booking.booking_time }}</p>
-                  <p>For: {{ booking.book_time }} hour</p>
-                  <p>Total Price: Rs {{ booking.total_price }}</p>
-                  {% if booking.opponent_status == 'APPROVED' %}
-                    <span >You have approved!</span>
-                   {% elif booking.opponent_status == 'REJECTED' %} 
-                   <span >You have rejected!</span>
-                   {% endif %}
-                  <div class="btn-container">
-                    {% if booking.status == 'PENDING' %}
-                      <span class="status-pending">{{ booking.status }}</span>
-                      {% if booking.opponent_status == 'PENDING' %}
-                      <div class="d-flex gap-3">
-                        <form method="POST" action="{% url 'accept_opponent_booking' booking.id %}">
-                          {% csrf_token %}
-                          <button type="submit" class="btn btn-outline-success accept-btn">Accept</button>
-                      </form>
-                      
-                      <form method="POST" action="{% url 'reject_opponent_booking' booking.id %}">
-                          {% csrf_token %}
-                          <button type="submit" class="btn btn-outline-danger reject-btn">Reject</button>
-                      </form>
-                      </div>
-                      {% else %}
-                        <span class="status-pending">Pending (Opponent)</span>
+            {% if booking_opponent_data %}
+              {% for booking, opponent_logo_url in booking_opponent_data %}
+              <div class="card mb-3">
+                <div class="row d-flex align-items-center">
+                  <div class="col-6">
+                    <img src="{{ booking.futsal.images.url }}" class="img-fluid fixed-height-image-container" alt="">
+                  </div>
+                  <div class="col-6 card-content">
+                    <h3>{{ booking.futsal.name }}</h3>
+                    <p>Booking Time: {{ booking.booking_date }} - {{ booking.booking_time }}</p>
+                    <p>For: {{ booking.book_time }} hour</p>
+                    <p>Total Price: Rs {{ booking.total_price }}</p>
+                    {% if booking.opponent_status == 'APPROVED' %}
+                      <span>You have approved!</span>
+                    {% elif booking.opponent_status == 'REJECTED' %} 
+                      <span>You have rejected!</span>
+                    {% endif %}
+                    <div class="btn-container">
+                      {% if booking.status == 'PENDING' %}
+                        <span class="status-pending">{{ booking.status }}</span>
+                        {% if booking.opponent_status == 'PENDING' %}
+                        <div class="d-flex gap-3">
+                          <form method="POST" action="{% url 'accept_opponent_booking' booking.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-success accept-btn">Accept</button>
+                          </form>
+                          
+                          <form method="POST" action="{% url 'reject_opponent_booking' booking.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger reject-btn">Reject</button>
+                          </form>
+                        </div>
+                        {% else %}
+                          <span class="status-pending">Pending (Opponent)</span>
+                        {% endif %}
+                      {% elif booking.status == 'REJECTED' %}
+                        <span class="status-rejected">{{ booking.status }}</span>
+                      {% elif booking.status == 'CANCELLED' %}
+                        <span class="status-cancelled">{{ booking.status }}</span>
                       {% endif %}
-                    {% elif booking.status == 'REJECTED' %}
-                      <span class="status-rejected">{{ booking.status }}</span>
-                    {% elif booking.status == 'CANCELLED' %}
-                      <span class="status-cancelled">{{ booking.status }}</span>
+                    </div>
+                    {% if opponent_logo_url %}
+                      <div class="logo-container d-flex gap-7">
+                        <div class="logo user-team" style="background-image: url('{{ user_team_logo_url }}');"></div>
+                        <div class="vs-logo"><img src="{% static 'userHome/img/vs.png' %}" alt=""></div>
+                        <div class="logo opponent-team" style="background-image: url('{{ opponent_logo_url }}');"></div>
+                      </div>
+                    {% else %}
+                      <div class="logo-container">
+                        <div class="logo user-team" style="background-image: url('{{ user_team_logo_url }}'); right: 0;"></div>
+                      </div>
                     {% endif %}
                   </div>
-                  {% if opponent_logo_url %}
-                    <div class="logo-container d-flex gap-7">
-                      <div class="logo user-team" style="background-image: url('{{ user_team_logo_url }}');"></div>
-                      <div class="vs-logo"><img src="{% static 'userHome/img/vs.png' %}" alt=""></div>
-                      <div class="logo opponent-team" style="background-image: url('{{ opponent_logo_url }}');"></div>
-                    </div>
-                  {% else %}
-                    <div class="logo-container">
-                      <div class="logo user-team" style="background-image: url('{{ user_team_logo_url }}'); right: 0;"></div>
-                    </div>
-                  {% endif %}
                 </div>
               </div>
-            </div>
-            {% endfor %}
+              {% endfor %}
+            {% else %}
+              <div class="col-12 text-center">
+                <div class="card p-3 text-center">
+                  <p>There are no bookings by opponents.</p>
+                </div>
+              </div>
+            {% endif %}
           </div>
         </div>
       </div>

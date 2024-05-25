@@ -841,12 +841,14 @@ def opponent_booked_futsals(request):
     }
     return render(request, 'userHome/opponent_booked_futsals.html', context)
 
+@login_required
 def accept_booking(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
     booking.opponent_status = OpponentStatus.APPROVED.value
     booking.save()
     return redirect('opponent_booked_futsals')
 
+@login_required
 def reject_booking(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
     booking.opponent_status = OpponentStatus.REJECTED.value
