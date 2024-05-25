@@ -27,11 +27,13 @@
                             <td>Rs {{ item.total_price }}</td>
                             <td>
                                 <a href="{% url 'order_detail' item.id %}" class="btn btn-info">
-                                    <i class="fa fa-eye"></i> View
+                                    <i class="fa fa-eye"></i> View Detail
                                 </a>
-                                <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-danger">
-                                    <i class="fa fa-trash"></i> Remove
+                               {% if item.payment_status == "Pending" %}
+                               <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-danger">
+                                <i class="fa fa-trash"></i> Remove
                                 </a>
+                                {% endif %}
                             </td>
                             {% if item.payment_status == "Pending" %}
                             <td>

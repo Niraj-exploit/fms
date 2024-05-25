@@ -108,12 +108,29 @@ class PlayerForm(forms.ModelForm):
         }
 
 
+# class FutsalKitForm(forms.ModelForm):
+#     class Meta:
+#         model = FutsalKit
+#         fields = ['name', 'image', 'price']
+#         widgets = {
+#             'name': forms.TextInput(attrs={'class': 'form-control'}),
+#             'image': forms.FileInput(attrs={'class': 'form-control-file'}),
+#             'price': forms.NumberInput(attrs={'class': 'form-control'})
+#         }
+
 class FutsalKitForm(forms.ModelForm):
     class Meta:
         model = FutsalKit
-        fields = ['name', 'image', 'price']
+        fields = ['name', 'image', 'price', 'sold_by']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'image': forms.FileInput(attrs={'class': 'form-control-file'}),
-            'price': forms.NumberInput(attrs={'class': 'form-control'})
+            'price': forms.NumberInput(attrs={'class': 'form-control'}),
+            'sold_by': forms.Select(attrs={'class': 'form-control'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(FutsalKitForm, self).__init__(*args, **kwargs)
+        if self.user:
+            self.fields['sold_by'].queryset = Futsal.objects.filter(addedBy=self.user)

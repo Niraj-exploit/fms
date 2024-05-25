@@ -1,6 +1,5 @@
 {% extends 'userHome/main.html' %}
 {% load static %}
-{% load order_tags %}
 {% block content %}
 <div class="container py-4">
     <div class="row justify-content-center">
@@ -28,24 +27,16 @@
                 </div>
                 <div class="card-footer">
                     <small class="text-muted">Payment Status: {{ order.payment_status }}</small>
+                    {% if order.payment_status == "Completed" %}
+                    <p>
+                        Please collect your {{order.kit.name}} at {{order.kit.sold_by}}
+                    </p>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-12">
-            <div class="status-bar">
-                <input type="radio" id="pending" name="status" value="pending" disabled>
-                <label for="pending">Pending</label>
-                <div class="line line-1"></div>
-                <input type="radio" id="verified" name="status" value="verified" disabled>
-                <label for="verified">Verified</label>
-                <div class="line line-2"></div>
-                <input type="radio" id="completed" name="status" value="completed" disabled>
-                <label for="completed">Completed</label>
-            </div>
-        </div>
-    </div>
+
 </div>
 
 <link href="{% static 'userHome/css/progress_bar.css' %}" rel="stylesheet" />

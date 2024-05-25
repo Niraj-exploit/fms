@@ -3,6 +3,7 @@ from enum import Enum
 from django.db import models
 from django.conf import settings
 
+from adminHome.models import Futsal
 from userAuth.models import User
 
 class Team(models.Model):
@@ -24,7 +25,7 @@ class Player(models.Model):
 
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team_players')  # ForeignKey to Team
     name = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='player_images/')
+    image = models.ImageField(default="football-bg.jpg")
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='player')
     player_location = models.CharField(max_length=100, null=True, blank=True)
 
@@ -48,7 +49,7 @@ class FutsalKit(models.Model):
     image = models.ImageField(upload_to='kits/', default="logo/futsal-pro.png")
     price = models.DecimalField(max_digits=10, decimal_places=2)
     added_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
-
+    sold_by = models.ForeignKey(Futsal, on_delete=models.CASCADE, null=True, blank=True)
     def __str__(self):
         return self.name
 

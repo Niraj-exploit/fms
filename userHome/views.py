@@ -576,6 +576,7 @@ def cart_view(request):
 @login_required
 def order_detail(request, order_id):
     order = get_object_or_404(CartItem, id=order_id, user=request.user)
+
     context = {
         'order': order
     }
@@ -607,7 +608,7 @@ def status_class(status):
 @login_required
 def manage_kits(request):
     user = request.user
-    kit_form = FutsalKitForm()
+    kit_form = FutsalKitForm(user=request.user)
 
     if user.is_futsal_owner:
         futsalKits = FutsalKit.objects.filter(added_by=user)
@@ -615,12 +616,12 @@ def manage_kits(request):
         futsalKits = []
 
     if request.method == 'POST':
-        kit_form = FutsalKitForm(request.POST, request.FILES)
+        kit_form = FutsalKitForm(request.POST, request.FILES, user=request.user)
         if kit_form.is_valid():
             new_kit = kit_form.save(commit=False)
             new_kit.added_by = user
             new_kit.save()
-            return redirect('manage_kits') 
+            return redirect('manage_kits')
 
     context = {
         'futsalKits': futsalKits,
@@ -632,12 +633,12 @@ def manage_kits(request):
 def update_kit(request, pk):
     kit = get_object_or_404(FutsalKit, pk=pk, added_by=request.user)
     if request.method == 'POST':
-        form = FutsalKitForm(request.POST, request.FILES, instance=kit)
+        form = FutsalKitForm(request.POST, request.FILES, instance=kit, user=request.user)
         if form.is_valid():
             form.save()
             return redirect('manage_kits')
     else:
-        form = FutsalKitForm(instance=kit)
+        form = FutsalKitForm(instance=kit, user=request.user)
     return render(request, 'userHome/update_futsal_kit.html', {'form': form, 'kit': kit})
 
 @login_required
