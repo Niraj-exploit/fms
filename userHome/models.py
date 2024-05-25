@@ -3,6 +3,8 @@ from enum import Enum
 from django.db import models
 from django.conf import settings
 
+from userAuth.models import User
+
 class Team(models.Model):
     name = models.CharField(max_length=100)
     logo = models.ImageField(default="football-bg.jpg")
@@ -18,6 +20,7 @@ class Player(models.Model):
         ('captain', 'Captain'),
         ('player', 'Player'),
     )
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
 
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team_players')  # ForeignKey to Team
     name = models.CharField(max_length=100)
@@ -68,3 +71,6 @@ class CartItem(models.Model):
     def save(self, *args, **kwargs):
         self.total_price = self.quantity * self.kit.price
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.kit)

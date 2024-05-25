@@ -1,6 +1,8 @@
 from django.contrib import admin
-from .models import Booking
+from .models import Booking, Futsal
 
+
+admin.site.register(Futsal)
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
     list_display = ('user', 'futsal', 'booking_date', 'get_booking_time', 'get_status_display')

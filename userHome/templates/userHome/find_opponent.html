@@ -1,18 +1,13 @@
-{% extends 'userHome/main.html' %} {% load static %} {% block content %}
+{% extends 'userHome/main.html' %}
+{% load static %}
+{% block content %}
 <link rel="stylesheet" href="{% static 'userHome/css/my_team.css' %}" />
 <section id="team" class="team_area">
   <div class="container">
     <div class="row d-flex justify-content-center">
       {% if teams %}
       <div class="d-flex justify-content-between align-items-center">
-        <button
-          type="button"
-          class="btn btn-success float-end"
-          data-bs-toggle="modal"
-          data-bs-target="#addUserModal"
-        >
-          Add
-        </button>
+
       </div>
       <section id="team" class="team_area mt-2">
         <div class="container">
@@ -27,26 +22,27 @@
             >
               <div class="our-team">
                 <div class="single-team">
-                    <div class="circle-img">
-                        <img src="{{ team.logo.url }}" class="img-fluid" alt="" />
-                      </div>
-                    <style>
-                        .circle-img {
-                          width: 150px; /* Adjust size as needed */
-                          height: 150px; /* Adjust size as needed */
-                          border-radius: 50%; /* Makes the div circular */
-                          overflow: hidden; /* Ensures the image fits inside the circle */
-                          margin: 0 auto; /* Centers the circle horizontally */
-                        }
-            
-                        .circle-img img {
-                          width: 100%; /* Makes the image fill the circular div */
-                          height: 100%; /* Makes the image fill the circular div */
-                          object-fit: cover; /* Ensures the image covers the entire div */
-                        }
-                      </style>
+                  <div class="circle-img">
+                    <img src="{{ team.logo.url }}" class="img-fluid" alt="" />
+                  </div>
+                  <style>
+                    .circle-img {
+                      width: 150px; /* Adjust size as needed */
+                      height: 150px; /* Adjust size as needed */
+                      border-radius: 50%; /* Makes the div circular */
+                      overflow: hidden; /* Ensures the image fits inside the circle */
+                      margin: 0 auto; /* Centers the circle horizontally */
+                    }
+
+                    .circle-img img {
+                      width: 100%; /* Makes the image fill the circular div */
+                      height: 100%; /* Makes the image fill the circular div */
+                      object-fit: cover; /* Ensures the image covers the entire div */
+                    }
+                  </style>
                   <h3 class="text-center">{{ team.name }}</h3>
                   <p class="text-center">{{ team.team_location }}</p>
+                  <a href="{% url 'booking_page' team.id %}" class="btn btn-primary d-block mt-2">Book Match</a>
                 </div>
               </div>
             </div>
@@ -66,26 +62,27 @@
             >
               <div class="our-team">
                 <div class="single-team">
-                    <div class="circle-img">
-                        <img src="{{ team.logo.url }}" class="img-fluid" alt="" />
-                      </div>
-                    <style>
-                        .circle-img {
-                          width: 150px; /* Adjust size as needed */
-                          height: 150px; /* Adjust size as needed */
-                          border-radius: 50%; /* Makes the div circular */
-                          overflow: hidden; /* Ensures the image fits inside the circle */
-                          margin: 0 auto; /* Centers the circle horizontally */
-                        }
-            
-                        .circle-img img {
-                          width: 100%; /* Makes the image fill the circular div */
-                          height: 100%; /* Makes the image fill the circular div */
-                          object-fit: cover; /* Ensures the image covers the entire div */
-                        }
-                      </style>
+                  <div class="circle-img">
+                    <img src="{{ team.logo.url }}" class="img-fluid" alt="" />
+                  </div>
+                  <style>
+                    .circle-img {
+                      width: 150px; /* Adjust size as needed */
+                      height: 150px; /* Adjust size as needed */
+                      border-radius: 50%; /* Makes the div circular */
+                      overflow: hidden; /* Ensures the image fits inside the circle */
+                      margin: 0 auto; /* Centers the circle horizontally */
+                    }
+
+                    .circle-img img {
+                      width: 100%; /* Makes the image fill the circular div */
+                      height: 100%; /* Makes the image fill the circular div */
+                      object-fit: cover; /* Ensures the image covers the entire div */
+                    }
+                  </style>
                   <h3 class="text-center">{{ team.name }}</h3>
                   <p class="text-center">{{ team.team_location }}</p>
+                  <a href="{% url 'booking_page' team.id %}" class="btn btn-primary d-block mt-2">Book Match</a>
                 </div>
               </div>
             </div>
@@ -100,36 +97,5 @@
   </div>
 </section>
 
-<!-- Modal -->
-<div
-  class="modal fade"
-  id="addUserModal"
-  tabindex="-1"
-  aria-labelledby="addUserModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addUserModalLabel">Add Player</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <!-- Add your form here, you can render it using Django form rendering -->
-        <form method="post" enctype="multipart/form-data">
-          {% csrf_token %}
-          <!-- Your form fields go here -->
-          <div class="mb-3">{{player_form}}</div>
-          <!-- Add other form fields as needed -->
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
+
 {% endblock %}

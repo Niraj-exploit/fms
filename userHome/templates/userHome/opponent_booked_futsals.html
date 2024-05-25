@@ -1,0 +1,159 @@
+{% extends 'userHome/main.html' %}
+{% load static %}
+{% block content %}
+<section id="values" class="values">
+  <div class="col-12">
+    <div class="p-3">
+      <div class="">
+        <div class="container mt-5" data-aos="fade-up">
+          <style>
+            .fixed-height-image-container {
+              height: 250px;
+              margin: 10px;
+              border-radius: 10px;
+              overflow: hidden;
+            }
+
+            .card {
+              position: relative;
+              overflow: hidden;
+              border: 1px solid #ddd;
+              border-radius: 10px;
+              margin-bottom: 15px;
+              background-size: cover;
+              background-position: center;
+              transition: box-shadow 0.3s ease, border-color 0.3s ease;
+            }
+
+            .card:hover {
+              box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.1);
+              border-color: #007bff; /* Border color change on hover */
+            }
+
+            .card-content {
+              padding: 15px;
+              position: relative; 
+              z-index: 1;
+              color: #000000; 
+            }
+
+            .logo-container {
+              position: absolute;
+              top: -8px;
+              right: 15px;
+              display: flex;
+              align-items: center;
+              z-index: 0; 
+              opacity: 0.1; 
+              transition: opacity 0.3s ease;
+            }
+
+            .card:hover .logo-container {
+              opacity: 0.3;
+            }
+
+            .logo {
+              width: 300px;  /* Increased size */
+              height: 300px; /* Increased size */
+              border-radius: 50%;
+              background-size: cover;
+              background-position: center;
+            }
+
+            .vs-logo {
+              width: 100px;
+              height: 100px;
+              position: absolute;
+              bottom: 300px;
+              right: 490px;
+              opacity: 0.1;
+              transition: opacity 0.3s ease;
+            }
+
+            .card:hover .vs-logo {
+              opacity: 1;
+            }
+
+            .status-pending, .status-confirmed, .status-completed, .status-rejected, .status-cancelled {
+              margin-right: 10px;
+            }
+
+            .btn-container {
+              position: relative;
+              z-index: 2; /* Ensure buttons are above all other content */
+              margin-top: 10px;
+            }
+
+            .accept-reject-btns {
+              display: flex;
+              justify-content: space-between;
+            }
+
+            .accept-btn, .reject-btn {
+              flex: 1;
+            }
+          </style>
+
+          <div class="row">
+            {% for booking, opponent_logo_url in booking_opponent_data %}
+            <div class="card mb-3">
+              <div class="row d-flex align-items-center">
+                <div class="col-6">
+                  <img src="{{ booking.futsal.images.url }}" class="img-fluid fixed-height-image-container" alt="">
+                </div>
+                <div class="col-6 card-content">
+                  <h3>{{ booking.futsal.name }}</h3>
+                  <p>Booking Time: {{ booking.booking_date }} - {{ booking.booking_time }}</p>
+                  <p>For: {{ booking.book_time }} hour</p>
+                  <p>Total Price: Rs {{ booking.total_price }}</p>
+                  {% if booking.opponent_status == 'APPROVED' %}
+                    <span >You have approved!</span>
+                   {% elif booking.opponent_status == 'REJECTED' %} 
+                   <span >You have rejected!</span>
+                   {% endif %}
+                  <div class="btn-container">
+                    {% if booking.status == 'PENDING' %}
+                      <span class="status-pending">{{ booking.status }}</span>
+                      {% if booking.opponent_status == 'PENDING' %}
+                      <div class="d-flex gap-3">
+                        <form method="POST" action="{% url 'accept_opponent_booking' booking.id %}">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-outline-success accept-btn">Accept</button>
+                      </form>
+                      
+                      <form method="POST" action="{% url 'reject_opponent_booking' booking.id %}">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-outline-danger reject-btn">Reject</button>
+                      </form>
+                      </div>
+                      {% else %}
+                        <span class="status-pending">Pending (Opponent)</span>
+                      {% endif %}
+                    {% elif booking.status == 'REJECTED' %}
+                      <span class="status-rejected">{{ booking.status }}</span>
+                    {% elif booking.status == 'CANCELLED' %}
+                      <span class="status-cancelled">{{ booking.status }}</span>
+                    {% endif %}
+                  </div>
+                  {% if opponent_logo_url %}
+                    <div class="logo-container d-flex gap-7">
+                      <div class="logo user-team" style="background-image: url('{{ user_team_logo_url }}');"></div>
+                      <div class="vs-logo"><img src="{% static 'userHome/img/vs.png' %}" alt=""></div>
+                      <div class="logo opponent-team" style="background-image: url('{{ opponent_logo_url }}');"></div>
+                    </div>
+                  {% else %}
+                    <div class="logo-container">
+                      <div class="logo user-team" style="background-image: url('{{ user_team_logo_url }}'); right: 0;"></div>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section><!-- End Values Section -->
+{% endblock content %}

@@ -1,7 +1,7 @@
 from django import template
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
-from adminHome.models import Futsal
+from adminHome.models import BookingStatus, Futsal, OpponentStatus
 from django.contrib.auth import logout
 from adminHome.models import Futsal, Booking
 from userAuth.models import User
@@ -25,17 +25,18 @@ def homePage(request):
     total_futsals = Futsal.objects.count()
     form = FutsalSearchForm()
     futsal_types = Futsal.objects.values_list('futsal_type', flat=True).distinct()
-    nearest_booking = find_nearest_booking()
-
+    nearest_booking = find_nearest_booking(request.user)
     most_booked_futsal, num_bookings = find_most_booked_futsal_for_week()
     print("Nearest booking time", nearest_booking)
-
 
     if request.user.is_authenticated:
         user_booked_futsals = Booking.objects.filter(user=request.user)
         user_booked_count = Booking.objects.filter(user=request.user).count()
+        user_team = getattr(request.user, 'user_team', None)
     else:
         user_booked_futsals = None
+        user_team = None
+
     context = {
         'futsals': futsals,
         'total_futsals': total_futsals,
@@ -44,10 +45,11 @@ def homePage(request):
         'user_booked_count': user_booked_count,
         'most_booked_futsal': most_booked_futsal,
         'form': form,
-        'nearest_booking': nearest_booking
+        'nearest_booking': nearest_booking,
+        'user_team': user_team,
     }
 
-    return render (request, 'userHome/home.html', context) 
+    return render(request, 'userHome/home.html', context)
 
 
 # def futsalPage(request):
@@ -245,6 +247,27 @@ def manageFutsal(request):
     return render(request, 'userHome/futsal_owner_table.html', context)
 
 @login_required
+def update_futsal(request, futsal_id):
+    futsal = get_object_or_404(Futsal, pk=futsal_id, addedBy=request.user)
+    if request.method == 'POST':
+        form = AddFutsalForm(request.POST, instance=futsal)
+        if form.is_valid():
+            form.save()
+            return redirect('manage_futsal')
+    else:
+        form = AddFutsalForm(instance=futsal)
+    return render(request, 'userHome/update_owned_futsal.html', {'form': form})
+
+@login_required
+def delete_futsal(request, futsal_id):
+    futsal = get_object_or_404(Futsal, id=futsal_id)
+    if request.method == 'POST':
+        futsal.delete()
+        messages.success(request, f' {'Successfully Deleted futsal ' + futsal.name }')
+        return redirect('/manage_futsal/')  
+    return render(request, 'userHome/delete_futsals.html', {'futsal': futsal})
+
+@login_required
 def initiate_payment(request, booking_id):
     booking = Booking.objects.get(id=booking_id)
     user_detail = User.objects.get(username=request.user)
@@ -284,14 +307,6 @@ def initiate_payment(request, booking_id):
     }
 
     try:
-        # response = requests.post(url, headers=headers, json=payload)
-        # print(response)
-        # response_data = response.json()
-        # if response_data['token']:
-        #     return redirect(response_data['redirect_url'])
-        # else:
-        #     # Handle payment initiation failure
-        #     return render(request, 'payment_error.html', {'error_message': response_data.get('message')})
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
         response_data = json.loads(response.text)
@@ -488,6 +503,17 @@ def team_registration(request):
         team_form = TeamForm()
     return render(request, 'userHome/team_registration.html', {'team_form': team_form})
 
+def destroy_team(request, team_id):
+    team = get_object_or_404(Team, id=team_id)
+    
+    Booking.objects.filter(opponent=team).delete()
+    
+    Player.objects.filter(team=team).delete()
+    
+    team.delete()
+    
+    messages.success(request, 'Team and its associated bookings and players have been successfully deleted.')
+    return redirect('/my_team/')
 
 def find_opponent(request):
     user = request.user
@@ -555,6 +581,11 @@ def order_detail(request, order_id):
     }
     return render(request, 'userHome/order_detail.html', context)
 
+def remove_from_cart(request, order_id):
+    order = get_object_or_404(CartItem, id=order_id, user=request.user)
+    order.delete()
+    return redirect("/cart/")
+
 register = template.Library()
 
 @register.filter
@@ -616,3 +647,208 @@ def delete_kit(request, pk):
         kit.delete()
         return redirect('manage_kits')
     return render(request, 'userHome/delete_futsal_kit.html', {'kit': kit})
+
+
+@login_required
+def order_initiate_payment(request, order_id):
+    order = get_object_or_404(CartItem, id=order_id, user=request.user)
+    order_price = float(order.total_price) * 100
+    print(order_price)
+
+    url = "https://a.khalti.com/api/v2/epayment/initiate/"
+    payload = json.dumps({
+        "return_url": "http://localhost:8000/order_payment_detail/",
+        "website_url": "https://example.com/",
+        "amount": str(order_price),
+        "purchase_order_id": str(order_id),
+        "purchase_order_name": "test",
+        "customer_info": {
+        "name": str(request.user),
+        "email": str(request.user.email),
+        "phone": str(request.user.phone)
+         }
+    })
+    headers = {
+        'Authorization': 'key live_secret_key_68791341fdd94846a146f0457ff7b455',
+        'Content-Type': 'application/json',
+    }
+
+    try:
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.text)
+        response_data = json.loads(response.text)
+        payment_url = response_data.get('payment_url')
+        return redirect(payment_url)
+    except requests.RequestException as e:
+        # Handle request exception
+        return render(request, 'payment_error.html', {'error_message': str(e)})
+    
+@login_required
+def order_payment_detail(request):
+    pidx = request.GET.get('pidx')
+    transaction_id = request.GET.get('transaction_id')
+    tidx = request.GET.get('tidx')
+    amount = request.GET.get('amount')
+    total_amount = int(request.GET.get('total_amount')) / 100
+    mobile = request.GET.get('mobile')
+    status = request.GET.get('status')
+    purchase_order_id = request.GET.get('purchase_order_id')
+    purchase_order_name = request.GET.get('purchase_order_name')
+
+    try:
+        cart_instance = CartItem.objects.get(id=purchase_order_id)
+    except CartItem.DoesNotExist:
+        return HttpResponse("CartItem not found", status=404)
+
+    url = "https://a.khalti.com/api/v2/epayment/lookup/"
+    payload = json.dumps({
+        "pidx": pidx
+    })
+    headers = {
+        'Authorization': 'key live_secret_key_68791341fdd94846a146f0457ff7b455',
+        'Content-Type': 'application/json',
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+    response_data = json.loads(response.text)
+    print("Response: ", response_data)
+
+    if response_data.get('status') == 'Completed':
+        cart_instance.payment_status = 'Completed'
+        cart_instance.pidx = response_data.get('pidx')
+        cart_instance.save()
+
+        kit_instance = cart_instance.kit
+        context = {
+            'pidx': response_data.get('pidx'),
+            'transaction_id': response_data.get('transaction_id'),
+            'tidx': tidx,
+            'amount': amount,
+            'total_amount': total_amount,
+            'mobile': mobile,
+            'status': response_data.get('status'),
+            'fee': response_data.get('fee'),
+            'refunded': response_data.get('refunded'),
+            'purchase_order_id': purchase_order_id,
+            'cartItem':cart_instance,
+            'kit': kit_instance
+        }
+        return render(request, 'userHome/order_item_bill.html', context)
+    else:
+        print("Payment not completed")
+        return HttpResponse("Payment not completed", status=400)
+
+@login_required
+def order_view_bill(request, order_id):
+    try:
+        cart_instance = CartItem.objects.get(id=order_id)
+    except CartItem.DoesNotExist:
+        return HttpResponse("CartItem not found", status=404)
+
+    pidx = cart_instance.pidx
+    kit_instance = cart_instance.kit
+
+    url = "https://a.khalti.com/api/v2/epayment/lookup/"
+    payload = json.dumps({"pidx": pidx})
+    headers = {
+        'Authorization': 'key live_secret_key_68791341fdd94846a146f0457ff7b455',
+        'Content-Type': 'application/json',
+    }
+
+    response = requests.post(url, headers=headers, data=payload)
+    response_data = response.json()
+    print("Response: ", response_data)
+
+    mobile = request.user.phone
+    total_amount = response_data.get('total_amount') / 100
+    tidx = 'sdasda'
+
+    context = {
+        'pidx': response_data.get('pidx'),
+        'transaction_id': response_data.get('transaction_id'),
+        'tidx': tidx,
+        'total_amount': total_amount,
+        'mobile': mobile,
+        'status': response_data.get('status'),
+        'fee': response_data.get('fee'),
+        'refunded': response_data.get('refunded'),
+        'cartItem': cart_instance,
+        'kit': kit_instance,
+    }
+
+    return render(request, 'userHome/order_item_bill.html', context)
+
+@login_required
+def booking_page(request, team_id):
+    futsals = Futsal.objects.all()
+    opponent_team = get_object_or_404(Team, id=team_id)
+    context = {
+        "futsals": futsals,
+        "opponent_team": opponent_team
+    }
+    return render(request, 'userHome/get_futsals.html', context)
+
+
+@login_required
+def book_futsal_with_opponent(request, futsal_id, team_id):
+    futsal = get_object_or_404(Futsal, id=futsal_id)
+    opponent_team = get_object_or_404(Team, id=team_id)
+    opponent_captain = opponent_team.captain.name
+    
+    if request.method == "POST":
+        booking_date = request.POST.get('booking_date')
+        booking_time = request.POST.get('booking_time')
+        book_time = request.POST.get('book_time')
+
+        user_booking = Booking(
+            user=request.user,
+            futsal=futsal,
+            booking_date=booking_date,
+            booking_time=booking_time,
+            book_time=book_time,
+            opponent=opponent_team,
+            total_price=futsal.price * int(book_time)
+        )
+        user_booking.save()
+
+        return redirect('/my_bookings/')  # Update this to the correct URL
+
+    context = {
+        'futsal': futsal,
+        'opponent': opponent_team,
+    }
+    return render(request, 'userHome/book_futsal_with_opponent.html', context)
+
+@login_required
+def opponent_booked_futsals(request):
+    # Get the user's team and its details
+    user_team = request.user.user_team
+    user_team_detail = Team.objects.filter(name=user_team).first()
+    user_team_logo_url = user_team_detail.logo.url if user_team_detail and user_team_detail.logo else None
+
+    # Get bookings where the opponent is the user's team
+    bookings = Booking.objects.filter(opponent=user_team).order_by('-id')
+
+    # Prepare data for rendering
+    booking_opponent_data = []
+    for booking in bookings:
+        opponent_logo_url = booking.user.user_team.logo.url if booking.user.user_team and booking.user.user_team.logo else None
+        booking_opponent_data.append((booking, opponent_logo_url))
+
+    context = {
+        'booking_opponent_data': booking_opponent_data,
+        'user_team_logo_url': user_team_logo_url,
+    }
+    return render(request, 'userHome/opponent_booked_futsals.html', context)
+
+def accept_booking(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id)
+    booking.opponent_status = OpponentStatus.APPROVED.value
+    booking.save()
+    return redirect('opponent_booked_futsals')
+
+def reject_booking(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id)
+    booking.opponent_status = OpponentStatus.REJECTED.value
+    booking.save()
+    return redirect('opponent_booked_futsals')

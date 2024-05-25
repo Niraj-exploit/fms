@@ -21,6 +21,7 @@
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Price</th>
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Time</th>
                     <th class="text-secondary opacity-7"></th>
+                    <th class="text-secondary opacity-7"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -51,9 +52,17 @@
                       <span class="text-secondary text-xs font-weight-bold">{{futsal.open_time}}-{{futsal.close_time}}</span>
                     </td>
                     <td class="align-middle">
-                      <a href="javascript:;" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit user">
+                      <a href="{% url 'admin_update_futsal' futsal.id %}" class="text-secondary font-weight-bold text-xs">
                         Edit
                       </a>
+                    </td>
+                    <td class="align-middle">
+                      <form action="{% url 'admin_delete_futsal' futsal.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="text-secondary font-weight-bold text-xs btn btn-link mt-3">
+                          Delete
+                        </button>
+                      </form>
                     </td>
                   </tr>
                   {% endfor %}
@@ -66,7 +75,6 @@
     </div>
     </div>
   </div>
-
 
   <!-- Add Futsal Modal -->
 <div class="modal fade" id="addFutsalModal" tabindex="-1" aria-labelledby="addFutsalModalLabel" aria-hidden="true">

@@ -26,8 +26,8 @@
 
             .card-content {
               padding: 15px;
-              position: relative; /* Ensure the buttons inside are positioned relative to this container */
-              z-index: 1; /* Ensure card content is above the background image */
+              position: relative;
+              z-index: 1;
             }
 
             .logo-container {
@@ -36,13 +36,18 @@
               right: 15px;
               display: flex;
               align-items: center;
-              z-index: 0; /* Behind other content */
-              opacity: 0.3; /* Adjust the transparency */
+              z-index: 0;
+              opacity: 0.1;
+              transition: opacity 0.3s ease;
+            }
+
+            .card:hover .logo-container {
+              opacity: 0.3;
             }
 
             .logo {
-              width: 300px;  /* Increased size */
-              height: 300px; /* Increased size */
+              width: 300px;
+              height: 300px;
               border-radius: 50%;
               background-size: cover;
               background-position: center;
@@ -54,15 +59,25 @@
               position: absolute;
               bottom: 300px;
               right: 490px;
+              transition: opacity 0.3s ease;
             }
 
-            .status-pending, .status-confirmed, .status-completed, .status-rejected, .status-cancelled {
+            .card:hover .vs-logo {
+              opacity: 1;
+            }
+
+            .status-pending,
+            .status-confirmed,
+            .status-completed,
+            .status-rejected,
+            .status-cancelled {
               margin-right: 10px;
             }
 
             .btn-container {
               position: relative;
-              z-index: 2; /* Ensure buttons are above all other content */
+              z-index: 2;
+              margin-top: 10px; /* Added margin to move buttons down */
             }
           </style>
 
@@ -74,30 +89,29 @@
                   <img src="{{ booking.futsal.images.url }}" class="img-fluid fixed-height-image-container" alt="">
                 </div>
                 <div class="col-6 card-content">
-                  <div class="btn-container">
-                    {% if booking.status == 'PENDING' %}
-                      <span class="status-pending">{{ booking.status }}</span>
-                      <a class="btn btn-outline-primary" href="{% url 'cancel_booking' booking.id %}">Cancel Booking</a>
-                    {% elif booking.status == 'Approved' %}
-                      <span class="status-confirmed">{{ booking.status }}</span>
-                      {% if booking.payment_status == 'Pending' %}
-                        <a class="btn btn-outline-primary" href="{% url 'initiate_payment' booking.id %}">Pay Now</a>
-                      {% elif booking.payment_status == 'Completed' %}
-                        <div class="d-flex flex-row">
-                          <a class="btn btn-outline-primary" href="{% url 'view_bill' booking.id %}">View Bill</a>
-                        </div>
-                      {% endif %}
-                    {% elif booking.status == 'Completed' %}
-                      <span class="status-completed">{{ booking.status }}</span>
-                      <div class="d-flex flex-row">
-                        <a class="btn btn-outline-primary" href="{% url 'view_bill' booking.id %}">View Bill</a>
-                      </div>
-                    {% elif booking.status == 'Rejected' %}
-                      <span class="status-rejected">{{ booking.status }}</span>
-                    {% elif booking.status == 'CANCELLED' %}
-                      <span class="status-cancelled">{{ booking.status }}</span>
+                  {% if booking.status == 'PENDING' %}
+                    <span class="status-pending">{{ booking.status }}</span>
+                    {% if booking.opponent_status == 'PENDING' %}
+                      <span>Opponent hasn't confirmed yet.</span>
+                    {% elif booking.opponent_status == 'REJECTED' %}
+                      <span>Opponent rejected booking!.</span>
                     {% endif %}
-                  </div>
+                  {% elif booking.status == 'Approved' %}
+                    <span class="status-confirmed">{{ booking.status }}</span>
+                    {% if booking.opponent and booking.opponent_status == 'PENDING' %}
+                      <span>Opponent hasn't confirmed yet.</span>
+                    {% elif booking.opponent and booking.opponent_status == 'REJECTED' %}
+                      <span>Opponent rejected booking!</span>
+                    {% endif %}
+                  {% elif booking.status == 'Completed' %}
+                    <span class="status-completed">{{ booking.status }}</span>
+                    <a class="btn btn-outline-primary" href="{% url 'view_bill' booking.id %}">View Bill</a>
+                  {% elif booking.status == 'Rejected' %}
+                    <span class="status-rejected">{{ booking.status }}</span>
+                  {% elif booking.status == 'CANCELLED' %}
+                    <span class="status-cancelled">{{ booking.status }}</span>
+                  {% endif %}
+
                   {% if opponent_logo_url %}
                     <div class="logo-container d-flex gap-7">
                       <div class="logo user-team" style="background-image: url('{{ user_team_logo_url }}');"></div>
@@ -113,6 +127,27 @@
                   <p>Booking Time: {{ booking.booking_date }} - {{ booking.booking_time }}</p>
                   <p>For: {{ booking.book_time }} hour</p>
                   <p>Total Price: Rs {{ booking.total_price }}</p>
+                    {{booking.payment_status}}
+                    <div class="btn-container">
+                      {% if booking.status == 'PENDING' %}
+                          <a class="btn btn-outline-primary" href="{% url 'cancel_booking' booking.id %}">Cancel Booking</a>
+                      {% elif booking.status == 'Approved' %}
+                          {% if booking.opponent %}
+                              {% if booking.opponent_status == 'APPROVED' and booking.payment_status == 'Pending' %}
+                                  <a class="btn btn-outline-primary" href="{% url 'initiate_payment' booking.id %}">Pay Now</a>
+                              {% elif booking.payment_status == 'Completed' %}
+                                  <a class="btn btn-outline-primary" href="{% url 'view_bill' booking.id %}">View Bill</a>
+                              {% endif %}
+                          {% elif not booking.opponent %}
+                              {% if booking.payment_status == 'Pending' %}
+                                  <a class="btn btn-outline-primary" href="{% url 'initiate_payment' booking.id %}">Pay Now</a>
+                              {% elif booking.payment_status == 'Completed' %}
+                                  <a class="btn btn-outline-primary" href="{% url 'view_bill' booking.id %}">View Bill</a>
+                              {% endif %}
+                          {% endif %}
+                      {% endif %}
+                  </div>
+                  
                 </div>
               </div>
             </div>

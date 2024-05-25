@@ -15,6 +15,7 @@
                             <th>Price</th>
                             <th>Total</th>
                             <th></th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -28,7 +29,25 @@
                                 <a href="{% url 'order_detail' item.id %}" class="btn btn-info">
                                     <i class="fa fa-eye"></i> View
                                 </a>
+                                <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-danger">
+                                    <i class="fa fa-trash"></i> Remove
+                                </a>
                             </td>
+                            {% if item.payment_status == "Pending" %}
+                            <td>
+                                <a href="{% url 'order_initiate_payment' item.id %}" class="btn btn-info">
+                                    <i class="fa fa-eye"></i> Pay Now
+                                </a>
+                            </td>
+                            {% elif item.payment_status == "Completed" %}
+                            <td>
+                                <a href="{% url 'order_view_bill' item.id %}" class="btn btn-info">
+                                    <i class="fa fa-eye"></i> View Bill
+                                </a>
+                            </td>
+                            {% else %}
+                            <td></td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </tbody>

@@ -7,6 +7,8 @@ from .utils import calculate_total_money_earned_by_futsals, find_most_booked_fut
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.decorators import login_required
 from .decorators import admin_required
+from django.contrib import messages
+
 
 @admin_required
 @login_required
@@ -17,7 +19,7 @@ def dashboard(request):
     total_money_earned_by_futsals = calculate_total_money_earned_by_futsals()
     total_money_earned = sum(total_money_earned_by_futsals.values())
     most_booked_futsal_for_week = find_most_booked_futsal_for_week()
-    print(total_money_earned_by_futsals)
+    print(most_booked_futsal_for_week)
 
     context = {
         'total_users': total_users,
@@ -43,7 +45,7 @@ def get_total_bookings():
 def get_total_futsals():
     return Futsal.objects.count()
 
-
+@admin_required
 def tablePage(request):
     futsals = Futsal.objects.all()
     bookings = Booking.objects.all()
@@ -55,6 +57,7 @@ def tablePage(request):
     }
     return render(request, 'adminHome/tables.html', context)
 
+@admin_required
 def bookingPage(request): 
     bookings = Booking.objects.all()
 
@@ -64,6 +67,7 @@ def bookingPage(request):
     }
     return render(request, 'adminHome/booking.html', context)
 
+@admin_required
 @login_required
 def addFutsal(request):
     if request.method == 'POST':
@@ -77,6 +81,7 @@ def addFutsal(request):
             form = AddFutsalForm()
     return render(request, 'adminHome/table.html', {'form': form})
 
+@admin_required
 @login_required
 def approveBooking(request, pk):
     booking = Booking.objects.get(id=pk)
@@ -84,6 +89,7 @@ def approveBooking(request, pk):
     booking.save()
     return redirect('table')
 
+@admin_required
 @login_required
 def rejectBooking(request, pk):
     booking = Booking.objects.get(id=pk)
@@ -91,6 +97,7 @@ def rejectBooking(request, pk):
     booking.save()
     return redirect('table')
 
+@admin_required
 @login_required
 def completeBooking(request, pk):
     booking = Booking.objects.get(id=pk)
@@ -98,6 +105,7 @@ def completeBooking(request, pk):
     booking.save()
     return redirect('table')
 
+@admin_required
 @login_required
 def manage_user_view(request):
     print("Hello")
@@ -118,6 +126,7 @@ def manage_user_view(request):
 
     return render(request, 'adminHome/manage_users.html', context)
 
+@admin_required
 @login_required
 def update_user(request, user_id):
     user = get_object_or_404(User, pk=user_id)
@@ -137,12 +146,14 @@ def update_user(request, user_id):
     context = {'form': form}
     return render(request, 'adminHome/update_user.html', context)
 
+@admin_required
 @login_required
 def delete_user(request, user_id):
     user = get_object_or_404(User, pk=user_id)
     user.delete()
     return redirect('manage_user_view')
 
+@admin_required
 @login_required
 def user_detail(request, user_id):
     user = get_object_or_404(User, pk=user_id)
@@ -152,3 +163,26 @@ def user_detail(request, user_id):
         'bookings': bookings
     }
     return render(request, 'adminHome/user_detail.html', context)
+
+@admin_required
+@login_required
+def update_futsal(request, futsal_id):
+    futsal = get_object_or_404(Futsal, id=futsal_id)  
+    if request.method == 'POST':
+        form = AddFutsalForm(request.POST, instance=futsal)
+        if form.is_valid():
+            form.save()
+            return redirect('/admin/tables/') 
+    else:
+        form = AddFutsalForm(instance=futsal)
+    return render(request, 'adminHome/update_futsals.html', {'form': form})
+
+@admin_required
+@login_required
+def delete_futsal(request, futsal_id):
+    futsal = get_object_or_404(Futsal, id=futsal_id)
+    if request.method == 'POST':
+        futsal.delete()
+        messages.success(request, f' {'Successfully Deleted futsal ' + futsal.name }')
+        return redirect('/admin/tables/')  
+    return render(request, 'adminHome/delete_futsals.html', {'futsal': futsal})

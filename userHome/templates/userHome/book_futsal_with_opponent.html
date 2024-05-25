@@ -1,0 +1,20 @@
+{% extends 'userHome/main.html' %}
+{% block content %}
+<h2>Book a Futsal Match at {{ futsal.name }}</h2>
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="booking_date" class="form-label">Booking Date</label>
+        <input type="date" name="booking_date" id="booking_date" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label for="booking_time" class="form-label">Booking Time</label>
+        <input type="time" name="booking_time" id="booking_time" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label for="book_time" class="form-label">Duration (hours)</label>
+        <input type="number" name="book_time" id="book_time" class="form-control" min="1" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Book Now</button>
+</form>
+{% endblock %}

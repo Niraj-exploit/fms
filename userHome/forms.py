@@ -106,7 +106,6 @@ class PlayerForm(forms.ModelForm):
             'role': forms.Select(attrs={'class': 'form-control'}),
             'player_location': forms.TextInput(attrs={'class': 'form-control'}),
         }
-PlayerFormSet = forms.inlineformset_factory(Team, Player, form=PlayerForm, extra=1)
 
 
 class FutsalKitForm(forms.ModelForm):
